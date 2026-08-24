@@ -180,9 +180,11 @@
 				TargetAttributes = {
 					A10000000000000000000060 = {
 						CreatedOnToolsVersion = 16.0;
+						ProvisioningStyle = Automatic;
 					};
 					E10000000000000000000010 = {
 						CreatedOnToolsVersion = 16.0;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};

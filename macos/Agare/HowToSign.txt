@@ -1,0 +1,30 @@
+Agare — sign with a free Apple ID (no $99 program)
+
+Xcode should now show the Agare project. If you only see a welcome screen, open:
+  ~/Agare-build/macos/Agare.xcodeproj
+
+1. Add your free Apple ID
+   Xcode menu → Settings… (⌘,) → Accounts
+   Click +  →  Apple ID
+   Sign in with the same Apple ID you use on this Mac (iCloud).
+   You do not enroll in the Apple Developer Program.
+
+2. Select the Agare app target
+   Left sidebar: click the blue Agare project icon at the top.
+   Under TARGETS (not PROJECT), click Agare — the one with the app icon.
+   Do not click AgareExtension.
+
+3. Choose your Team
+   Open the Signing & Capabilities tab (beside General).
+   Tick “Automatically manage signing”.
+   Team: pick your name / Apple ID.
+
+4. Run
+   At the top of Xcode, the scheme should say:  Agare  >  My Mac
+   Press the Play button ▶  or  Product → Run  (⌘R).
+
+5. Turn it on in Safari
+   When the Agare window appears:
+   Safari → Settings → Extensions → turn on Agare.
+
+That Run step is what registers Agare in Safari.

@@ -5,9 +5,11 @@ enum XcodeInstaller {
         let alert = NSAlert()
         alert.messageText = "Set up with Xcode?"
         alert.informativeText = """
-        Agare signs with a free Apple Development certificate from your Apple ID in Xcode. You do not need the paid Developer Program.
+        This copies the Agare Xcode project onto this Mac and opens it.
 
-        Safari will quit once so the extension can appear under Settings → Extensions.
+        Sign in with a free Apple ID (Xcode → Settings → Accounts). Select the Agare target, choose your Team, press Run. You do not need the paid Developer Program.
+
+        A HowToSign note opens with the same steps.
         """
         alert.addButton(withTitle: "Continue")
         alert.addButton(withTitle: "Cancel")
