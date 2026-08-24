@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Agare",
-  "version": "1.4.0",
+  "version": "1.6.0",
   "description": "Sentence highlights and notes on the page you are reading. 召し上がれ. Local, compact, exportable.",
   "icons": {
     "16": "icons/16.png",

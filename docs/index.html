@@ -6,7 +6,7 @@
     <title>Agare · 召し上がれ</title>
     <meta
       name="description"
-      content="Agare is a personal Safari highlighter. Sentence marks and notes, local to the page, transferable across your Macs."
+      content="Agare is a Safari highlighter for Mac. Download the app, drag it to Applications, turn it on in Safari."
     />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,61 +25,44 @@
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: var(--bg); color: var(--ink); }
-      body {
-        font-family: Figtree, ui-sans-serif, system-ui, sans-serif;
-        line-height: 1.5;
-      }
-      .wrap { max-width: 40rem; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+      body { font-family: Figtree, ui-sans-serif, system-ui, sans-serif; line-height: 1.5; }
+      .wrap { max-width: 38rem; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
       header { display: flex; align-items: center; gap: 0.6rem; }
       header img { width: 36px; height: 36px; }
       .brand { font-family: Newsreader, Georgia, serif; font-size: 1.6rem; font-weight: 500; }
       .kana { margin: 0.35rem 0 0; color: var(--muted); font-family: Newsreader, Georgia, serif; font-style: italic; }
       h1 {
         font-family: Newsreader, Georgia, serif;
-        font-size: clamp(2.2rem, 6vw, 3.4rem);
-        font-weight: 500;
-        letter-spacing: -0.03em;
-        line-height: 1.12;
+        font-size: clamp(2.1rem, 6vw, 3.1rem);
+        font-weight: 500; letter-spacing: -0.03em; line-height: 1.12;
         margin: 2.2rem 0 0.8rem;
       }
       p.lead { color: var(--muted); font-size: 1.05rem; max-width: 34rem; }
-      .actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1.6rem 0 2.4rem; }
       a.btn {
-        display: inline-flex; align-items: center; height: 2.7rem; padding: 0 1.15rem;
-        border-radius: 8px; background: var(--ink); color: var(--bg); text-decoration: none;
-        font-size: 0.9rem; font-weight: 500;
+        display: inline-flex; align-items: center; height: 2.8rem; padding: 0 1.2rem;
+        margin: 1.4rem 0 0; border-radius: 8px; background: var(--ink); color: var(--bg);
+        text-decoration: none; font-size: 0.95rem; font-weight: 500;
       }
-      a.ghost {
-        display: inline-flex; align-items: center; height: 2.7rem; padding: 0 1.15rem;
-        border-radius: 8px; border: 1px solid var(--line); color: var(--ink); text-decoration: none;
-        font-size: 0.9rem;
-      }
+      .hint { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.82rem; }
+      h2 { font-family: Newsreader, Georgia, serif; font-size: 1.4rem; font-weight: 500; margin: 2.2rem 0 0.7rem; }
+      ol { padding-left: 1.2rem; color: var(--muted); }
+      ol li { margin: 0.55rem 0; }
       .pair {
-        display: grid; gap: 1rem;
-        grid-template-columns: 1fr 1fr;
-        background: var(--paper);
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 1.1rem;
+        display: grid; gap: 1rem; grid-template-columns: 1fr 1fr;
+        background: var(--paper); border: 1px solid var(--line);
+        border-radius: 14px; padding: 1.1rem; margin-top: 1.6rem;
       }
       .bar {
         display: flex; align-items: center; gap: 0.5rem;
-        height: 3rem; padding: 0 0.75rem;
-        background: #e6e0d4; border-radius: 8px;
+        height: 3rem; padding: 0 0.75rem; background: #e6e0d4; border-radius: 8px;
       }
       .bar img { width: 32px; height: 32px; }
       .bar span { font-size: 11px; color: #6b6458; }
       figcaption { margin-top: 0.6rem; }
       figcaption strong { display: block; font-family: Newsreader, Georgia, serif; font-size: 1.05rem; font-weight: 500; }
       figcaption em { color: var(--muted); font-style: normal; font-size: 0.8rem; }
-      h2 { font-family: Newsreader, Georgia, serif; font-size: 1.45rem; font-weight: 500; margin: 2.4rem 0 0.7rem; }
-      ol { padding-left: 1.2rem; color: var(--muted); }
-      ol li { margin: 0.45rem 0; }
-      code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8em; }
       footer { margin-top: 3rem; color: var(--muted); font-size: 0.78rem; }
-      @media (max-width: 560px) {
-        .pair { grid-template-columns: 1fr; }
-      }
+      @media (max-width: 560px) { .pair { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
@@ -91,16 +74,13 @@
           <p class="kana">召し上がれ</p>
         </div>
       </header>
-      <h1>Mark the sentence.<br />Keep the note.</h1>
+      <h1>A Safari highlighter for your Mac.</h1>
       <p class="lead">
-        A personal Safari highlighter. Six inks, a note in the same popup, and a
-        switch for this page or this site. Nothing leaves the machine unless you
-        export it.
+        Download the app, drag it into Applications, turn it on in Safari.
+        Highlights stay on this machine unless you export them.
       </p>
-      <div class="actions">
-        <a class="btn" href="./agare-safari.zip">Download agare-safari.zip</a>
-        <a class="ghost" href="https://github.com/" id="repo-link">GitHub repo</a>
-      </div>
+      <a class="btn" id="download" href="#">Download Agare for Mac</a>
+      <p class="hint" id="dl-hint">Gets Agare.app.zip from the latest GitHub Release.</p>
       <div class="pair">
         <figure>
           <div class="bar">
@@ -123,31 +103,41 @@
           </figcaption>
         </figure>
       </div>
-      <h2>Install in Safari</h2>
+      <h2>Install</h2>
       <ol>
-        <li>Unzip the package. You should see <code>manifest.json</code>.</li>
-        <li>Xcode → New → Project → macOS → Safari Web Extension. Name it <strong>Agare</strong>.</li>
-        <li>Replace Resources with the extension files (not <code>docs/</code> or <code>.github/</code>).</li>
-        <li>Run once, quit the placeholder window, then enable Agare in Safari → Settings → Extensions.</li>
-      </ol>
-      <h2>This GitHub repo</h2>
-      <ol>
-        <li><strong>Pages</strong> (this site): Settings → Pages → Deploy from branch → <code>main</code> / <code>/docs</code>.</li>
-        <li><strong>A Release</strong> (versioned zip): tag <code>v1.0.0</code> and push it. The workflow attaches <code>agare-safari.zip</code>.</li>
+        <li>Download <strong>Agare.app.zip</strong> and unzip it. You should see an app named Agare.</li>
+        <li>Drag <strong>Agare</strong> into the <strong>Applications</strong> folder.</li>
+        <li>Right-click Agare → <strong>Open</strong> (macOS asks once because it did not come from the App Store).</li>
+        <li>In the Agare window, click <strong>Turn on in Safari…</strong> and switch Agare on.</li>
+        <li>If Safari does not list it: Safari → Settings → Developer → Allow unsigned extensions, then try step 4 again.</li>
       </ol>
       <footer>
-        Agare is a play on 召し上がれ — meshiagare. Personal use, MIT licence.
-        Highlights never leave the machine unless you export them.
+        Agare is a play on 召し上がれ — meshiagare. Personal use, CC BY-NC 4.0.
       </footer>
     </div>
     <script>
-      const path = location.pathname.replace(/\/docs\/?$/, "/").replace(/\/index\.html$/, "/");
-      const parts = location.hostname.split(".");
-      if (location.hostname.endsWith("github.io") && parts.length >= 3) {
-        const user = parts[0];
-        const repo = path.split("/").filter(Boolean)[0] || "agare";
-        document.getElementById("repo-link").href = "https://github.com/" + user + "/" + repo;
-      }
+      (async function () {
+        const btn = document.getElementById("download");
+        const hint = document.getElementById("dl-hint");
+        let slug = "";
+        try {
+          const cfg = await fetch("./repo.json").then((r) => r.json());
+          if (cfg.github && !cfg.github.includes("YOUR-USER")) slug = cfg.github;
+        } catch (_) {}
+        if (!slug && location.hostname.endsWith("github.io")) {
+          const user = location.hostname.split(".")[0];
+          const repo = location.pathname.split("/").filter(Boolean)[0] || "agare";
+          slug = user + "/" + repo;
+        }
+        if (slug) {
+          const url = "https://github.com/" + slug + "/releases/latest/download/Agare.app.zip";
+          btn.href = url;
+          hint.textContent = "Latest Release · " + slug;
+        } else {
+          btn.href = "https://github.com/";
+          hint.textContent = "Set docs/repo.json to your GitHub user/repo, then tag a Release.";
+        }
+      })();
     </script>
   </body>
 </html>
