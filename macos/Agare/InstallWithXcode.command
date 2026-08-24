@@ -1,12 +1,13 @@
 #!/bin/zsh
-# Runs in Terminal (outside the app sandbox). Called from Agare’s “Set up with Xcode” button.
+# Signs Agare with this Mac’s Xcode team, installs it, and registers the Safari extension.
 set -euo pipefail
-export PATH="/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
 
 APP="$(cd "$(dirname "$0")/../.." && pwd)"
 KIT="$APP/Contents/Resources/Kit"
 DEST="$HOME/Agare-build"
 LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+EXT_ID="ca.agare.highlighter.extension"
 
 say() {
   osascript -e "display dialog \"$1\" buttons {\"OK\"} default button 1 with title \"Agare\"" >/dev/null
@@ -33,66 +34,89 @@ if ! xcodebuild -version >/dev/null 2>&1; then
   exit 1
 fi
 
-confirm "Agare will copy an Xcode project to ${DEST} and open it.\\n\\nIn Xcode, choose your Team (your Apple ID) under Signing.\\n\\nContinue?" "Copy project"
+TEAM="$(python3 - <<'PY'
+import re, subprocess
+out = subprocess.check_output(["security", "find-identity", "-p", "codesigning", "-v"], text=True, stderr=subprocess.DEVNULL)
+for line in out.splitlines():
+    if "Apple Development" not in line or "CSSMERR" in line:
+        continue
+    m = re.search(r"\(([A-Z0-9]{10})\)\"?\s*$", line.strip())
+    if m:
+        print(m.group(1))
+        raise SystemExit
+print("")
+PY
+)"
+
+if [[ -z "$TEAM" ]]; then
+  open -a Xcode
+  say "Add a free Apple ID in Xcode (no paid Developer Program). Xcode → Settings → Accounts → + → Apple ID. Then Agare target → Signing & Capabilities → Team → that Apple ID → Run."
+  exit 1
+fi
+
+confirm "Agare will sign with your free Apple Development certificate (team ${TEAM}), install Agare.app, and register it in Safari. No paid Developer Program. Safari will quit once so the extension can appear. Continue?" "Continue"
 
 rm -rf "$DEST"
 ditto "$KIT" "$DEST"
-
 PROJ="$DEST/macos/Agare.xcodeproj"
 if [[ ! -d "$PROJ" ]]; then
-  if xcrun --find safari-web-extension-converter >/dev/null 2>&1; then
-    xcrun safari-web-extension-converter "$DEST" \
-      --macos-only --no-prompt --force --no-open \
-      --bundle-identifier ca.agare.highlighter \
-      --app-name Agare \
-      --copy-resources \
-      --project-location "$DEST/macos"
-  else
-    say "The Xcode project is missing and Apple’s Safari packager is not on this Mac."
-    exit 1
-  fi
-fi
-
-open "$PROJ"
-
-CHOICE="$(osascript -e 'button returned of (display dialog "The project is open in Xcode.\n\nSelect the Agare target → Signing & Capabilities → Team → your Apple ID.\n\nBuild now, or press Run in Xcode yourself?" buttons {"I’ll press Run", "Build now"} default button 1 with title "Agare")')" || exit 0
-
-if [[ "$CHOICE" != "Build now" ]]; then
-  exit 0
+  say "The Xcode project is missing from this kit."
+  exit 1
 fi
 
 cd "$DEST/macos"
 set +e
 xcodebuild -project Agare.xcodeproj -scheme Agare -configuration Release \
+  -destination "generic/platform=macOS" \
   -derivedDataPath "$DEST/DerivedData" \
+  DEVELOPMENT_TEAM="$TEAM" \
+  CODE_SIGN_IDENTITY="Apple Development" \
   CODE_SIGN_STYLE=Automatic \
-  -allowProvisioningUpdates
+  CODE_SIGNING_ALLOWED=YES \
+  CODE_SIGNING_REQUIRED=YES \
+  ENABLE_HARDENED_RUNTIME=YES \
+  -allowProvisioningUpdates \
+  build
 STATUS=$?
 set -e
 
 if [[ $STATUS -ne 0 ]]; then
-  say "Automatic build failed. In Xcode pick your Team under Signing & Capabilities, then press Run."
+  open "$PROJ"
+  say "Signing build failed. In Xcode → Settings → Accounts, add your free Apple ID. Agare target → Signing & Capabilities → Team → that Apple ID, then press Run."
   exit 1
 fi
 
 BUILT="$DEST/DerivedData/Build/Products/Release/Agare.app"
 test -d "$BUILT"
-test -d "$BUILT/Contents/PlugIns/AgareExtension.appex"
+test -f "$BUILT/Contents/PlugIns/AgareExtension.appex/Contents/Resources/manifest.json"
 
-# One Agare.app only — Safari ignores a new build if an old copy is still registered.
 killall Agare 2>/dev/null || true
-sleep 0.4
+osascript -e 'tell application "Safari" to quit' >/dev/null 2>&1 || true
+sleep 0.8
+
 rm -rf "$HOME/Applications/Agare.app"
 mkdir -p "$HOME/Applications"
 ditto "$BUILT" "$HOME/Applications/Agare.app"
+INSTALLED="$HOME/Applications/Agare.app"
 if [[ -w /Applications ]]; then
   rm -rf /Applications/Agare.app
   ditto "$BUILT" /Applications/Agare.app
+  INSTALLED="/Applications/Agare.app"
 fi
 
-APPEX="$HOME/Applications/Agare.app/Contents/PlugIns/AgareExtension.appex"
-"$LSREGISTER" -f "$HOME/Applications/Agare.app" >/dev/null 2>&1 || true
+APPEX="$INSTALLED/Contents/PlugIns/AgareExtension.appex"
+"$LSREGISTER" -f "$INSTALLED" >/dev/null 2>&1 || true
 pluginkit -a "$APPEX" >/dev/null 2>&1 || true
+pluginkit -e use -i "$EXT_ID" >/dev/null 2>&1 || true
 
-open "$HOME/Applications/Agare.app"
-say "Build succeeded. Agare is in ~/Applications (the Applications folder in your home directory). Quit Safari fully, tick Allow unsigned extensions, then Extensions → Agare."
+# Match Xcode Run: Safari’s Develop feature + unsigned-dev extensions (needed for Apple Development certs).
+defaults write com.apple.Safari IncludeDevelopMenu -bool true
+defaults write com.apple.Safari AllowUnsignedExtensions -bool true
+SAFARI_PREF="$HOME/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari"
+defaults write "$SAFARI_PREF" IncludeDevelopMenu -bool true
+defaults write "$SAFARI_PREF" AllowUnsignedExtensions -bool true
+
+open "$INSTALLED"
+sleep 1
+open -a Safari
+say "Agare is installed at ${INSTALLED}. In Safari → Settings → Extensions, turn on Agare. You should not need to hunt for Developer settings — the helper already enabled them."

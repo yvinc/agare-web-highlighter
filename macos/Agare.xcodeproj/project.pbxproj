@@ -390,6 +390,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AgareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Agare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "CC BY-NC 4.0";
+				INFOPLIST_KEY_SFSafariWebsiteAccess.Level = All;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -413,6 +415,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AgareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Agare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "CC BY-NC 4.0";
+				INFOPLIST_KEY_SFSafariWebsiteAccess.Level = All;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

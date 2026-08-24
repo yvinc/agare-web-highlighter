@@ -5,9 +5,9 @@ enum XcodeInstaller {
         let alert = NSAlert()
         alert.messageText = "Set up with Xcode?"
         alert.informativeText = """
-        Agare will check that Xcode is installed, copy its Safari-extension project onto this Mac, and open it.
+        Agare signs with a free Apple Development certificate from your Apple ID in Xcode. You do not need the paid Developer Program.
 
-        You confirm each step. In Xcode, choose your Team (Apple ID) and press Run.
+        Safari will quit once so the extension can appear under Settings → Extensions.
         """
         alert.addButton(withTitle: "Continue")
         alert.addButton(withTitle: "Cancel")
@@ -37,7 +37,7 @@ enum XcodeInstaller {
 
         let go = NSAlert()
         go.messageText = "Open Terminal to continue?"
-        go.informativeText = "macOS will ask you to run a script. That helper copies the project; the build happens in Xcode."
+        go.informativeText = "macOS will ask you to run a script. Signing and the Safari registration happen there; Xcode is used to build."
         go.addButton(withTitle: "Open helper")
         go.addButton(withTitle: "Cancel")
         guard go.runModal() == .alertFirstButtonReturn else { return }

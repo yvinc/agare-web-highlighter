@@ -30,11 +30,9 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Turn Agare on in Safari")
                     .font(.headline)
-                Text("1. Open Safari, then Settings (⌘,).")
-                Text("2. Advanced — tick “Show features for web developers”.")
-                Text("3. Developer — tick “Allow unsigned extensions”. Enter your password if asked.")
-                Text("4. Extensions — turn on Agare.")
-                Text("If Agare is missing: quit Safari fully (Safari menu → Quit Safari), keep only one Agare.app, then open this window again.")
+                Text("First time: Set up with Xcode. That signs Agare with a free Apple Development certificate (your Apple ID — no paid Developer Program) and registers it in Safari.")
+                Text("Then Safari → Settings → Extensions → turn on Agare.")
+                Text("If Agare is missing, run Set up with Xcode again and wait until Safari reopens.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -79,7 +77,7 @@ struct ContentView: View {
         SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionId) { error in
             DispatchQueue.main.async {
                 if error != nil {
-                    note = "Safari doesn’t see Agare yet. Tick Allow unsigned extensions, quit Safari, open only this Agare app, then try again."
+                    note = "Safari still doesn’t see Agare. Run Set up with Xcode again so it can sign and register the extension."
                     openSafari()
                 }
                 refresh()
