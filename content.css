@@ -1,0 +1,27 @@
+.lumen-hl {
+  background-color: color-mix(
+    in srgb,
+    var(--lumen-fill, #fff59e) var(--lumen-a, 46%),
+    transparent
+  );
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0.05em 0.08em;
+  cursor: pointer;
+}
+.lumen-hl[data-noted="1"] {
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 0.12em;
+  text-decoration-color: var(--lumen-note, #b89c18);
+  text-underline-offset: 0.16em;
+  cursor: pointer;
+}
+#lumen-root {
+  all: initial;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483646;
+}
