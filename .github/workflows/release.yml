@@ -1,0 +1,53 @@
+name: Release Agare.app
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  mac-app:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Agare.app
+        run: |
+          xcodebuild \
+            -project macos/Agare.xcodeproj \
+            -scheme Agare \
+            -configuration Release \
+            -derivedDataPath macos/DerivedData \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=YES \
+            ENABLE_HARDENED_RUNTIME=NO
+      - name: Zip Agare.app
+        run: |
+          APP="macos/DerivedData/Build/Products/Release/Agare.app"
+          test -d "$APP"
+          codesign --force --deep --sign - "$APP" || true
+          ditto -c -k --keepParent "$APP" Agare.app.zip
+          ls -lh Agare.app.zip
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOTES="$(cat <<'EOF'
+          ## Install (Mac)
+
+          1. Download **Agare.app.zip** below.
+          2. Unzip, then drag **Agare** into **Applications**.
+          3. Right-click Agare → **Open** (the first time only).
+          4. In the Agare window, click **Turn on in Safari…** and enable it.
+
+          If Safari hides it: Safari → Settings → Developer → Allow unsigned extensions, then try again.
+          EOF
+          )"
+          gh release create "${GITHUB_REF_NAME}" Agare.app.zip \
+            --title "Agare ${GITHUB_REF_NAME}" \
+            --notes "$NOTES"
