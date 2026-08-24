@@ -4,12 +4,6 @@ on:
   push:
     tags:
       - "v*"
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Release tag to create or update (e.g. v.1.0.1)"
-        required: true
-        default: "v.1.0.1"
 
 permissions:
   contents: write
@@ -39,14 +33,9 @@ jobs:
           codesign --force --deep --sign - "$APP" || true
           ditto -c -k --keepParent "$APP" Agare.app.zip
           ls -lh Agare.app.zip
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Agare.app
-          path: Agare.app.zip
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
           NOTES="$(cat <<'EOF'
           ## Install (Mac)
@@ -59,13 +48,6 @@ jobs:
           If Safari hides it: Safari → Settings → Developer → Allow unsigned extensions, then try again.
           EOF
           )"
-          echo "Publishing to tag $TAG"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" Agare.app.zip --clobber
-            echo "Attached Agare.app.zip to existing $TAG"
-          else
-            gh release create "$TAG" Agare.app.zip \
-              --title "Agare $TAG" \
-              --notes "$NOTES" \
-            || gh release upload "$TAG" Agare.app.zip --clobber
-          fi
+          gh release create "${GITHUB_REF_NAME}" Agare.app.zip \
+            --title "Agare ${GITHUB_REF_NAME}" \
+            --notes "$NOTES"
