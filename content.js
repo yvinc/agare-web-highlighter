@@ -154,11 +154,15 @@
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
   const trashSvg =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>';
+  const xSvg =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  const closeBtn =
+    `<button class="tb-close" data-act="tb-close" type="button" aria-label="Close">${xSvg}</button>`;
 
   const drawToolbar = (rect) => {
     toolbar.hidden = false;
     if (tb && tb.kind === "enable") {
-      toolbar.innerHTML = `<div class="enable">
+      toolbar.innerHTML = `${closeBtn}<div class="enable">
         <p>Agare is off on this page.</p>
         <div class="enable-row">
           <button class="btn" data-act="on-page" type="button">This page</button>
@@ -175,7 +179,7 @@
         `<button class="dot${i === current ? " on" : ""}" type="button" data-c="${i}" aria-label="${c.k}" style="background:${c.f}"></button>`,
     ).join("");
     const noteLabel = cur && cur.n ? "Edit note" : "Add note";
-    let html = `<div class="tb-row">${colors}<span class="sep"></span>
+    let html = `${closeBtn}<div class="tb-row">${colors}<span class="sep"></span>
       <button class="icon-btn note-btn${tb && tb.noteOpen ? " on" : ""}" type="button" aria-label="${noteLabel}" title="${noteLabel}">${noteSvg}</button>
       ${cur ? `<button class="icon-btn" data-act="del-hl" type="button" aria-label="Remove highlight" title="Remove highlight">${trashSvg}</button>` : ""}</div>`;
     if (tb && tb.noteOpen) {
@@ -197,10 +201,25 @@
     }
   };
 
+  const uiEvent = (e) => {
+    const path = e.composedPath ? e.composedPath() : [];
+    if (path.includes(toolbar) || path.includes(panel)) return true;
+    const t = e.target;
+    return !!(t && (toolbar.contains(t) || panel.contains(t)));
+  };
+
+  let gesture = null;
+
+  const dismissPopup = () => {
+    hideToolbar();
+    hideBubble();
+    const sel = document.getSelection();
+    if (sel && !sel.isCollapsed) sel.removeAllRanges();
+  };
+
   const showSelectToolbar = () => {
     const range = L.selInside();
     if (!range) {
-      if (tb && (tb.kind === "edit" || tb.noteOpen)) return;
       hideToolbar();
       return;
     }
@@ -212,16 +231,6 @@
     }
     tb = { kind: "select" };
     drawToolbar(r);
-  };
-
-  const clickAway = (e) => {
-    const path = e.composedPath ? e.composedPath() : [];
-    if (path.includes(toolbar) || path.includes(panel)) return;
-    const t = e.target;
-    if (t && t.closest && t.closest("span.lumen-hl")) return;
-    hideToolbar();
-    const sel = document.getSelection();
-    if (sel && !sel.isCollapsed) sel.removeAllRanges();
   };
 
   const showEdit = (m, el, noteOpen, keepDraft) => {
@@ -376,6 +385,7 @@
   });
   toolbar.addEventListener("click", (e) => {
     const act = e.target.closest("[data-act]");
+    if (act && act.dataset.act === "tb-close") { dismissPopup(); return; }
     if (act && act.dataset.act === "on-page") { turnOn("page"); return; }
     if (act && act.dataset.act === "on-host") { turnOn("host"); return; }
     if (act && act.dataset.act === "note-cancel") {
@@ -393,18 +403,34 @@
     if (e.target.closest(".note-btn")) openNoteInPopup();
   });
 
-  document.addEventListener("mouseup", (e) => {
-    const path = e.composedPath ? e.composedPath() : [];
-    if (path.includes(toolbar) || path.includes(panel)) return;
-    const t = e.target;
-    if (t && t.closest && t.closest("span.lumen-hl")) {
-      const sel = document.getSelection();
-      if (!sel || sel.isCollapsed) return;
+  window.addEventListener("pointerdown", (e) => {
+    if (e.button != null && e.button !== 0) return;
+    if (uiEvent(e)) {
+      gesture = { ui: true };
+      return;
     }
-    requestAnimationFrame(showSelectToolbar);
-  });
+    const t = e.target;
+    const hl = t && t.closest && t.closest("span.lumen-hl");
+    gesture = { x: e.clientX, y: e.clientY, hl: !!hl };
+    if (!hl) hideToolbar();
+  }, true);
 
-  document.addEventListener("mousedown", clickAway);
+  window.addEventListener("pointerup", (e) => {
+    const g = gesture;
+    gesture = null;
+    if (!g || g.ui || uiEvent(e)) return;
+    const dragged = Math.hypot(e.clientX - g.x, e.clientY - g.y) > 6;
+    const multi = e.detail >= 2;
+    requestAnimationFrame(() => {
+      const range = L.selInside();
+      if (range && (dragged || multi)) {
+        showSelectToolbar();
+        return;
+      }
+      if (g.hl) return;
+      dismissPopup();
+    });
+  }, true);
 
   root.addEventListener("mouseover", (e) => {
     if (!pageOn() || (tb && tb.kind === "edit")) { hideBubble(); return; }

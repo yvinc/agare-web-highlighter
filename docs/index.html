@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agare · Safari highlighter – 召し上がれ</title>
+    <title>Agare: a Safari highlighter</title>
     <meta
       name="description"
-      content="Agare · Safari highlighter – 召し上がれ"
+      content="Agare highlights what you select on a page. Highlights never leave the machine unless you export them."
     />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -31,8 +31,7 @@
       header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
       .brand-row { display: flex; align-items: center; gap: 0.6rem; }
       header img { width: 36px; height: 36px; }
-      .brand { font-family: Newsreader, Georgia, serif; font-size: 1.6rem; font-weight: 500; }
-      .tag { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.85rem; }
+      .brand { font-family: Newsreader, Georgia, serif; font-size: 1.55rem; font-weight: 500; }
       a.src {
         color: var(--ink); font-size: 0.85rem; text-decoration: none;
         border-bottom: 1px solid var(--line);
@@ -40,9 +39,16 @@
       a.src:hover { border-color: var(--ink); }
       h1 {
         font-family: Newsreader, Georgia, serif;
-        font-size: clamp(2rem, 5.5vw, 2.8rem);
+        font-size: clamp(2rem, 5.5vw, 2.7rem);
         font-weight: 500; letter-spacing: -0.03em; line-height: 1.15;
-        margin: 2.1rem 0 0.7rem;
+        margin: 2.1rem 0 0.35rem;
+      }
+      .kana {
+        margin: 0 0 0.9rem;
+        font-family: Newsreader, Georgia, serif;
+        font-style: italic;
+        font-size: 1.35rem;
+        color: var(--muted);
       }
       p.lead { color: var(--muted); font-size: 1.05rem; max-width: 34rem; }
       .actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1.3rem 0 0; }
@@ -56,28 +62,20 @@
       }
       .hint { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.82rem; }
       h2 { font-family: Newsreader, Georgia, serif; font-size: 1.35rem; font-weight: 500; margin: 2.1rem 0 0.7rem; }
-      ol { padding-left: 1.2rem; color: var(--muted); }
-      ol li { margin: 0.55rem 0; }
-      .pair, .steps {
-        display: grid; gap: 1rem; grid-template-columns: 1fr 1fr;
+      ol.install { padding-left: 1.35rem; color: var(--muted); }
+      ol.install > li { margin: 1rem 0; }
+      ol.install > li > strong {
+        display: block; color: var(--ink);
+        font-family: Newsreader, Georgia, serif; font-size: 1.12rem; font-weight: 500;
+        margin-bottom: 0.3rem;
       }
+      ol.install ol { margin: 0.45rem 0 0; padding-left: 1.2rem; }
+      ol.install ol li { margin: 0.35rem 0; }
       .pair {
+        display: grid; gap: 1rem; grid-template-columns: 1fr 1fr;
         background: var(--paper); border: 1px solid var(--line);
         border-radius: 14px; padding: 1.1rem; margin-top: 1.5rem;
       }
-      .card {
-        background: var(--paper); border: 1px solid var(--line);
-        border-radius: 14px; padding: 1.15rem 1.2rem;
-      }
-      .card .n {
-        font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--olive);
-        font-weight: 600;
-      }
-      .card h3 {
-        font-family: Newsreader, Georgia, serif; font-size: 1.15rem; font-weight: 500;
-        margin: 0.35rem 0 0.45rem;
-      }
-      .card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
       .bar {
         display: flex; align-items: center; gap: 0.5rem;
         height: 3rem; padding: 0 0.75rem; background: #e6e0d4; border-radius: 8px;
@@ -88,7 +86,7 @@
       figcaption strong { display: block; font-family: Newsreader, Georgia, serif; font-size: 1.05rem; font-weight: 500; }
       figcaption em { color: var(--muted); font-style: normal; font-size: 0.8rem; }
       footer { margin-top: 2.8rem; color: var(--muted); font-size: 0.9rem; }
-      @media (max-width: 560px) { .pair, .steps { grid-template-columns: 1fr; } }
+      @media (max-width: 560px) { .pair { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
@@ -96,17 +94,14 @@
       <header>
         <div class="brand-row">
           <img src="./onigiri-on.png" alt="" />
-          <div>
-            <div class="brand">Agare</div>
-            <p class="tag">Safari highlighter – 召し上がれ</p>
-          </div>
+          <div class="brand">Agare</div>
         </div>
         <a class="src" href="https://github.com/yvinc/agare-web-highlighter">Source code</a>
       </header>
-      <h1>Safari highlighter – 召し上がれ</h1>
+      <h1>Agare: a Safari highlighter</h1>
+      <p class="kana">召し上がれ!</p>
       <p class="lead">
-        Download the latest release, drag Agare into Applications, then open it.
-        First launch uses Xcode on this Mac; after that, turn Agare on in Safari.
+        Agare highlights what you select on a page. Highlights never leave the machine unless you export them.
       </p>
       <div class="actions">
         <a class="btn" id="download" href="https://github.com/yvinc/agare-web-highlighter/releases/latest/download/Agare.app.zip">Download latest release</a>
@@ -136,50 +131,38 @@
         </figure>
       </div>
 
-      <h2>Open Agare</h2>
-      <p class="lead" style="margin-top:0">From the latest release: unzip, drag Agare into Applications, then do these two steps.</p>
-      <div class="steps" style="margin-top:1rem">
-        <article class="card">
-          <div class="n">Open Anyway</div>
-          <h3>Privacy & Security</h3>
-          <p>
-            Double-click Agare. If Mac says it can’t be opened, go to
-            <strong>System Settings → Privacy & Security</strong>,
-            scroll to the bottom, and click <strong>Open Anyway</strong>.
-            Confirm, then open Agare again.
-          </p>
-        </article>
-        <article class="card">
-          <div class="n">First time</div>
-          <h3>Set up with Xcode</h3>
-          <p>
-            In the Agare window, click <strong>Set up with Xcode…</strong>
-            (first time on this Mac). Confirm the prompts. The helper copies
-            the project; the build happens in Xcode. Choose your Team, then press Run.
-          </p>
-        </article>
-      </div>
-
-      <h2>Turn it on in Safari</h2>
-      <ol>
-        <li>Open <strong>Safari</strong>. Open Settings (press ⌘ and <strong>,</strong>).</li>
-        <li><strong>Advanced</strong> — tick <strong>Show features for web developers</strong>. That adds a Developer tab.</li>
-        <li><strong>Developer</strong> — tick <strong>Allow unsigned extensions</strong>. Enter your password if asked.</li>
-        <li><strong>Extensions</strong> — turn on <strong>Agare</strong>.</li>
+      <h2>Install</h2>
+      <ol class="install">
+        <li>
+          <strong>Privacy & Security</strong>
+          Unzip the latest release and drag Agare into Applications. Double-click it.
+          If Mac says it can’t be opened: <strong>System Settings → Privacy & Security</strong>,
+          scroll to the bottom, click <strong>Open Anyway</strong>, confirm, then open Agare again.
+        </li>
+        <li>
+          <strong>Set up with Xcode</strong>
+          First time on this Mac: in the Agare window, click <strong>Set up with Xcode…</strong>
+          and confirm the prompts. The helper copies the project; the build happens in Xcode.
+          Choose your Team, then press Run.
+        </li>
+        <li>
+          <strong>Turn it on in Safari</strong>
+          <ol>
+            <li>Open Safari. Open Settings (press ⌘ and <strong>,</strong>).</li>
+            <li><strong>Advanced</strong> — tick <strong>Show features for web developers</strong>.</li>
+            <li><strong>Developer</strong> — tick <strong>Allow unsigned extensions</strong>.</li>
+            <li><strong>Extensions</strong> — turn on <strong>Agare</strong>.</li>
+          </ol>
+          If Agare is not in the list, quit Safari fully, open Agare again, then check Extensions.
+        </li>
       </ol>
-      <p class="hint">
-        If Agare is not in the list, quit Safari fully (Safari menu → Quit Safari), open Agare again, then check Extensions.
-      </p>
       <footer>Made with 🍙</footer>
     </div>
     <script>
-      (async function () {
-        const btn = document.getElementById("download");
-        const hint = document.getElementById("dl-hint");
-        const slug = "yvinc/agare-web-highlighter";
-        btn.href = "https://github.com/" + slug + "/releases/latest/download/Agare.app.zip";
-        hint.textContent = "Latest Release · " + slug;
-      })();
+      document.getElementById("download").href =
+        "https://github.com/yvinc/agare-web-highlighter/releases/latest/download/Agare.app.zip";
+      document.getElementById("dl-hint").textContent =
+        "Latest Release · yvinc/agare-web-highlighter";
     </script>
   </body>
 </html>

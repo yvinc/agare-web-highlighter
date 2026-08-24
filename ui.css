@@ -20,7 +20,7 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 6px;
+  padding: 8px 22px 6px 6px;
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -29,6 +29,19 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
   z-index: 2;
   max-width: min(320px, calc(100vw - 16px));
 }
+.tb-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 99px;
+  color: var(--subtle);
+}
+.tb-close:hover { background: var(--bg); color: var(--ink); }
+.tb-close svg { width: 10px; height: 10px; }
 .toolbar.below { transform: translate(-50%, 8px); }
 .tb-row { display: flex; align-items: center; gap: 4px; }
 .dot {
