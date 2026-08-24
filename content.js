@@ -1,5 +1,5 @@
 (() => {
-  if (window.__lumenBooted) return;
+  document.querySelectorAll("#lumen-root").forEach((n) => n.remove());
   window.__lumenBooted = true;
   const L = globalThis.Lumen;
   if (!L) return;
@@ -137,8 +137,22 @@
 
   const hideToolbar = () => {
     toolbar.hidden = true;
+    toolbar.classList.remove("is-open");
+    toolbar.style.display = "none";
+    toolbar.style.visibility = "hidden";
     tb = null;
     popupNote = "";
+    document.querySelectorAll("#lumen-root").forEach((host) => {
+      const sr = host.shadowRoot;
+      if (!sr) return;
+      sr.querySelectorAll(".toolbar").forEach((t) => {
+        t.hidden = true;
+        t.classList.remove("is-open");
+        t.style.display = "none";
+        t.style.visibility = "hidden";
+      });
+      if (host !== hostEl) host.remove();
+    });
   };
   const hideBubble = () => { bubble.hidden = true; };
 
@@ -160,7 +174,12 @@
     `<button class="tb-close" data-act="tb-close" type="button" aria-label="Close">${xSvg}</button>`;
 
   const drawToolbar = (rect) => {
+    locked = false;
+    shownAt = Date.now();
     toolbar.hidden = false;
+    toolbar.classList.add("is-open");
+    toolbar.style.display = "flex";
+    toolbar.style.visibility = "visible";
     if (tb && tb.kind === "enable") {
       toolbar.innerHTML = `${closeBtn}<div class="enable">
         <p>Agare is off on this page.</p>
@@ -209,8 +228,11 @@
   };
 
   let gesture = null;
+  let locked = false;
+  let shownAt = 0;
 
   const dismissPopup = () => {
+    locked = true;
     hideToolbar();
     hideBubble();
     const sel = document.getSelection();
@@ -218,6 +240,7 @@
   };
 
   const showSelectToolbar = () => {
+    if (locked) return;
     const range = L.selInside();
     if (!range) {
       hideToolbar();
@@ -376,6 +399,17 @@
     if (ta) ta.focus();
   };
 
+  toolbar.addEventListener("pointerdown", (e) => {
+    if (e.target.closest && e.target.closest("[data-act='tb-close']")) {
+      e.preventDefault();
+      e.stopPropagation();
+      dismissPopup();
+      gesture = { ui: true };
+      return;
+    }
+    if (e.target.closest && e.target.closest("textarea")) return;
+    e.preventDefault();
+  });
   toolbar.addEventListener("mousedown", (e) => {
     if (e.target.closest && e.target.closest("textarea")) return;
     e.preventDefault();
@@ -403,34 +437,61 @@
     if (e.target.closest(".note-btn")) openNoteInPopup();
   });
 
-  window.addEventListener("pointerdown", (e) => {
+  shadow.addEventListener("pointerdown", (e) => {
+    if (e.target.closest && e.target.closest("[data-act='tb-close']")) {
+      e.preventDefault();
+      e.stopPropagation();
+      dismissPopup();
+      gesture = { ui: true };
+    }
+  }, true);
+
+  const onPointerDown = (e) => {
     if (e.button != null && e.button !== 0) return;
     if (uiEvent(e)) {
       gesture = { ui: true };
       return;
     }
-    const t = e.target;
-    const hl = t && t.closest && t.closest("span.lumen-hl");
-    gesture = { x: e.clientX, y: e.clientY, hl: !!hl };
-    if (!hl) hideToolbar();
-  }, true);
+    gesture = { x: e.clientX, y: e.clientY };
+    hideToolbar();
+  };
 
-  window.addEventListener("pointerup", (e) => {
+  const onPointerUp = (e) => {
     const g = gesture;
     gesture = null;
     if (!g || g.ui || uiEvent(e)) return;
-    const dragged = Math.hypot(e.clientX - g.x, e.clientY - g.y) > 6;
+    const dragged = Math.hypot(e.clientX - g.x, e.clientY - g.y) > 8;
     const multi = e.detail >= 2;
     requestAnimationFrame(() => {
-      const range = L.selInside();
-      if (range && (dragged || multi)) {
+      if (dragged || multi) {
+        locked = false;
         showSelectToolbar();
         return;
       }
-      if (g.hl) return;
       dismissPopup();
     });
+  };
+
+  const onPageClick = (e) => {
+    if (toolbar.hidden) return;
+    if (uiEvent(e)) return;
+    if (Date.now() - shownAt < 300) return;
+    dismissPopup();
+  };
+
+  document.addEventListener("pointerdown", onPointerDown, true);
+  window.addEventListener("pointerdown", onPointerDown, true);
+  document.addEventListener("pointerup", onPointerUp, true);
+  window.addEventListener("pointerup", onPointerUp, true);
+  document.addEventListener("click", onPageClick, true);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") dismissPopup();
   }, true);
+
+  document.addEventListener("selectionchange", () => {
+    if (locked) return;
+    if (!L.selInside() && !(tb && tb.noteOpen)) hideToolbar();
+  });
 
   root.addEventListener("mouseover", (e) => {
     if (!pageOn() || (tb && tb.kind === "edit")) { hideBubble(); return; }

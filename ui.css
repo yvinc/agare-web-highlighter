@@ -17,7 +17,7 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
 .toolbar {
   pointer-events: auto;
   position: fixed;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 8px;
   padding: 8px 22px 6px 6px;
@@ -29,6 +29,8 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
   z-index: 2;
   max-width: min(320px, calc(100vw - 16px));
 }
+.toolbar.is-open { display: flex; }
+.toolbar[hidden] { display: none !important; }
 .tb-close {
   position: absolute;
   top: 4px;

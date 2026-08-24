@@ -6,6 +6,7 @@ struct ContentView: View {
     private let extensionId = "ca.agare.highlighter.extension"
     @State private var enabled = false
     @State private var note: String?
+    @State private var stamp = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -22,26 +23,23 @@ struct ContentView: View {
                 }
             }
 
-            if enabled {
-                Text("Agare is on in Safari. You can close this window.")
-                    .font(.callout)
+            Text(enabled ? "On in Safari" : "Not enabled in Safari yet")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(enabled ? Color.secondary : Color.orange)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Turn Agare on in Safari")
+                    .font(.headline)
+                Text("1. Open Safari, then Settings (⌘,).")
+                Text("2. Advanced — tick “Show features for web developers”.")
+                Text("3. Developer — tick “Allow unsigned extensions”. Enter your password if asked.")
+                Text("4. Extensions — turn on Agare.")
+                Text("If Agare is missing: quit Safari fully (Safari menu → Quit Safari), keep only one Agare.app, then open this window again.")
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-            } else {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Turn Agare on in Safari")
-                        .font(.headline)
-                    Text("1. Open Safari, then Settings (⌘,).")
-                    Text("2. Advanced — tick “Show features for web developers”.")
-                    Text("3. Developer — tick “Allow unsigned extensions”. Enter your password if asked.")
-                    Text("4. Extensions — turn on Agare.")
-                        .font(.body)
-                    Text("Safari forgets step 3 when it quits. If Agare is missing from the list, quit Safari fully and open Agare again.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .font(.callout)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .font(.callout)
 
             if let note {
                 Text(note)
@@ -64,9 +62,9 @@ struct ContentView: View {
             }
         }
         .padding(28)
-        .frame(minWidth: 440, minHeight: 320)
+        .frame(minWidth: 440, minHeight: 340)
         .onAppear(perform: refresh)
-        .onReceive(Timer.publish(every: 2, on: .main, in: .common).autoconnect()) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             refresh()
         }
     }
@@ -81,7 +79,7 @@ struct ContentView: View {
         SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionId) { error in
             DispatchQueue.main.async {
                 if error != nil {
-                    note = "Safari doesn’t see Agare yet. Do steps 2–3 first, then quit Safari (Safari menu → Quit Safari) and click this button again."
+                    note = "Safari doesn’t see Agare yet. Tick Allow unsigned extensions, quit Safari, open only this Agare app, then try again."
                     openSafari()
                 }
                 refresh()
@@ -90,8 +88,13 @@ struct ContentView: View {
     }
 
     private func refresh() {
+        stamp += 1
+        let n = stamp
         SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionId) { state, _ in
-            DispatchQueue.main.async { enabled = state?.isEnabled ?? false }
+            DispatchQueue.main.async {
+                guard n == stamp else { return }
+                enabled = state?.isEnabled == true
+            }
         }
     }
 }

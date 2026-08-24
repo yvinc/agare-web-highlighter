@@ -6,6 +6,7 @@ export PATH="/usr/bin:/bin:/usr/sbin:/sbin"
 APP="$(cd "$(dirname "$0")/../.." && pwd)"
 KIT="$APP/Contents/Resources/Kit"
 DEST="$HOME/Agare-build"
+LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 
 say() {
   osascript -e "display dialog \"$1\" buttons {\"OK\"} default button 1 with title \"Agare\"" >/dev/null
@@ -32,7 +33,7 @@ if ! xcodebuild -version >/dev/null 2>&1; then
   exit 1
 fi
 
-confirm "Agare will copy an Xcode project to ${DEST} and open it.\\n\\nIn Xcode, choose your Team (your Apple ID) under Signing. A free Apple ID may still need “Allow unsigned extensions” after Safari quits.\\n\\nContinue?" "Copy project"
+confirm "Agare will copy an Xcode project to ${DEST} and open it.\\n\\nIn Xcode, choose your Team (your Apple ID) under Signing.\\n\\nContinue?" "Copy project"
 
 rm -rf "$DEST"
 ditto "$KIT" "$DEST"
@@ -69,13 +70,29 @@ xcodebuild -project Agare.xcodeproj -scheme Agare -configuration Release \
 STATUS=$?
 set -e
 
-if [[ $STATUS -eq 0 ]]; then
-  BUILT="$DEST/DerivedData/Build/Products/Release/Agare.app"
-  mkdir -p "$HOME/Applications"
-  rm -rf "$HOME/Applications/Agare.app"
-  ditto "$BUILT" "$HOME/Applications/Agare.app"
-  open "$HOME/Applications/Agare.app"
-  say "Build succeeded. Signed Agare is in the Applications folder in your home directory. Enable it in Safari → Settings → Extensions."
-else
+if [[ $STATUS -ne 0 ]]; then
   say "Automatic build failed. In Xcode pick your Team under Signing & Capabilities, then press Run."
+  exit 1
 fi
+
+BUILT="$DEST/DerivedData/Build/Products/Release/Agare.app"
+test -d "$BUILT"
+test -d "$BUILT/Contents/PlugIns/AgareExtension.appex"
+
+# One Agare.app only — Safari ignores a new build if an old copy is still registered.
+killall Agare 2>/dev/null || true
+sleep 0.4
+rm -rf "$HOME/Applications/Agare.app"
+mkdir -p "$HOME/Applications"
+ditto "$BUILT" "$HOME/Applications/Agare.app"
+if [[ -w /Applications ]]; then
+  rm -rf /Applications/Agare.app
+  ditto "$BUILT" /Applications/Agare.app
+fi
+
+APPEX="$HOME/Applications/Agare.app/Contents/PlugIns/AgareExtension.appex"
+"$LSREGISTER" -f "$HOME/Applications/Agare.app" >/dev/null 2>&1 || true
+pluginkit -a "$APPEX" >/dev/null 2>&1 || true
+
+open "$HOME/Applications/Agare.app"
+say "Build succeeded. Agare is in ~/Applications (the Applications folder in your home directory). Quit Safari fully, tick Allow unsigned extensions, then Extensions → Agare."
