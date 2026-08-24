@@ -16,8 +16,8 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Agare")
                         .font(.title.weight(.medium))
-                    Text("召し上がれ")
-                        .font(.title3.italic())
+                    Text("Safari highlighter – 召し上がれ")
+                        .font(.callout)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -50,12 +50,18 @@ struct ContentView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
+            VStack(alignment: .leading, spacing: 6) {
+                Button("Set up with Xcode…") { XcodeInstaller.run() }
+                    .keyboardShortcut(.defaultAction)
+                Text("Run this the first time you use Agare on this Mac.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             HStack {
                 Button("Open Safari") { openSafari() }
                 Button("Show Extensions list") { showExtensions() }
-                    .keyboardShortcut(.defaultAction)
             }
-            Button("Set up with Xcode…") { XcodeInstaller.run() }
         }
         .padding(28)
         .frame(minWidth: 440, minHeight: 320)

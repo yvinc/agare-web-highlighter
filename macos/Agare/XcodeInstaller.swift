@@ -8,8 +8,6 @@ enum XcodeInstaller {
         Agare will check that Xcode is installed, copy its Safari-extension project onto this Mac, and open it.
 
         You confirm each step. In Xcode, choose your Team (Apple ID) and press Run.
-
-        A free Apple ID may still require “Allow unsigned extensions” after Safari quits. A paid Developer ID is what makes that tick stick.
         """
         alert.addButton(withTitle: "Continue")
         alert.addButton(withTitle: "Cancel")
@@ -39,7 +37,7 @@ enum XcodeInstaller {
 
         let go = NSAlert()
         go.messageText = "Open Terminal to continue?"
-        go.informativeText = "macOS will ask you to run a script. That’s the helper that copies the project and can build it."
+        go.informativeText = "macOS will ask you to run a script. That helper copies the project; the build happens in Xcode."
         go.addButton(withTitle: "Open helper")
         go.addButton(withTitle: "Cancel")
         guard go.runModal() == .alertFirstButtonReturn else { return }

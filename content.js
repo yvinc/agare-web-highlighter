@@ -200,7 +200,7 @@
   const showSelectToolbar = () => {
     const range = L.selInside();
     if (!range) {
-      if (tb && (tb.kind === "edit" || tb.noteOpen || tb.kind === "enable")) return;
+      if (tb && (tb.kind === "edit" || tb.noteOpen)) return;
       hideToolbar();
       return;
     }
@@ -212,6 +212,16 @@
     }
     tb = { kind: "select" };
     drawToolbar(r);
+  };
+
+  const clickAway = (e) => {
+    const path = e.composedPath ? e.composedPath() : [];
+    if (path.includes(toolbar) || path.includes(panel)) return;
+    const t = e.target;
+    if (t && t.closest && t.closest("span.lumen-hl")) return;
+    hideToolbar();
+    const sel = document.getSelection();
+    if (sel && !sel.isCollapsed) sel.removeAllRanges();
   };
 
   const showEdit = (m, el, noteOpen, keepDraft) => {
@@ -383,17 +393,18 @@
     if (e.target.closest(".note-btn")) openNoteInPopup();
   });
 
-  document.addEventListener("selectionchange", () => {
-    requestAnimationFrame(showSelectToolbar);
-  });
-
-  document.addEventListener("mousedown", (e) => {
+  document.addEventListener("mouseup", (e) => {
     const path = e.composedPath ? e.composedPath() : [];
     if (path.includes(toolbar) || path.includes(panel)) return;
     const t = e.target;
-    if (t && t.closest && t.closest("span.lumen-hl")) return;
-    if (tb && (tb.kind === "edit" || tb.noteOpen)) hideToolbar();
+    if (t && t.closest && t.closest("span.lumen-hl")) {
+      const sel = document.getSelection();
+      if (!sel || sel.isCollapsed) return;
+    }
+    requestAnimationFrame(showSelectToolbar);
   });
+
+  document.addEventListener("mousedown", clickAway);
 
   root.addEventListener("mouseover", (e) => {
     if (!pageOn() || (tb && tb.kind === "edit")) { hideBubble(); return; }

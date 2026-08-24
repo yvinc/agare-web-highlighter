@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agare · 召し上がれ</title>
+    <title>Agare · Safari highlighter – 召し上がれ</title>
     <meta
       name="description"
-      content="Agare is a Safari highlighter for Mac. Download the app, drag it to Applications, turn it on in Safari."
+      content="Agare · Safari highlighter – 召し上がれ"
     />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,37 +21,63 @@
         --paper: #fffdf8;
         --ink: #1c1814;
         --muted: #6b6459;
+        --olive: #a3ad00;
         --line: color-mix(in oklab, #1c1814 12%, transparent);
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: var(--bg); color: var(--ink); }
       body { font-family: Figtree, ui-sans-serif, system-ui, sans-serif; line-height: 1.5; }
-      .wrap { max-width: 38rem; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
-      header { display: flex; align-items: center; gap: 0.6rem; }
+      .wrap { max-width: 40rem; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+      header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+      .brand-row { display: flex; align-items: center; gap: 0.6rem; }
       header img { width: 36px; height: 36px; }
       .brand { font-family: Newsreader, Georgia, serif; font-size: 1.6rem; font-weight: 500; }
-      .kana { margin: 0.35rem 0 0; color: var(--muted); font-family: Newsreader, Georgia, serif; font-style: italic; }
+      .tag { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.85rem; }
+      a.src {
+        color: var(--ink); font-size: 0.85rem; text-decoration: none;
+        border-bottom: 1px solid var(--line);
+      }
+      a.src:hover { border-color: var(--ink); }
       h1 {
         font-family: Newsreader, Georgia, serif;
-        font-size: clamp(2.1rem, 6vw, 3.1rem);
-        font-weight: 500; letter-spacing: -0.03em; line-height: 1.12;
-        margin: 2.2rem 0 0.8rem;
+        font-size: clamp(2rem, 5.5vw, 2.8rem);
+        font-weight: 500; letter-spacing: -0.03em; line-height: 1.15;
+        margin: 2.1rem 0 0.7rem;
       }
       p.lead { color: var(--muted); font-size: 1.05rem; max-width: 34rem; }
+      .actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 1.3rem 0 0; }
       a.btn {
         display: inline-flex; align-items: center; height: 2.8rem; padding: 0 1.2rem;
-        margin: 1.4rem 0 0; border-radius: 8px; background: var(--ink); color: var(--bg);
+        border-radius: 8px; background: var(--ink); color: var(--bg);
         text-decoration: none; font-size: 0.95rem; font-weight: 500;
       }
+      a.btn.ghost {
+        background: transparent; color: var(--ink); border: 1px solid var(--line);
+      }
       .hint { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.82rem; }
-      h2 { font-family: Newsreader, Georgia, serif; font-size: 1.4rem; font-weight: 500; margin: 2.2rem 0 0.7rem; }
+      h2 { font-family: Newsreader, Georgia, serif; font-size: 1.35rem; font-weight: 500; margin: 2.1rem 0 0.7rem; }
       ol { padding-left: 1.2rem; color: var(--muted); }
       ol li { margin: 0.55rem 0; }
-      .pair {
+      .pair, .steps {
         display: grid; gap: 1rem; grid-template-columns: 1fr 1fr;
-        background: var(--paper); border: 1px solid var(--line);
-        border-radius: 14px; padding: 1.1rem; margin-top: 1.6rem;
       }
+      .pair {
+        background: var(--paper); border: 1px solid var(--line);
+        border-radius: 14px; padding: 1.1rem; margin-top: 1.5rem;
+      }
+      .card {
+        background: var(--paper); border: 1px solid var(--line);
+        border-radius: 14px; padding: 1.15rem 1.2rem;
+      }
+      .card .n {
+        font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--olive);
+        font-weight: 600;
+      }
+      .card h3 {
+        font-family: Newsreader, Georgia, serif; font-size: 1.15rem; font-weight: 500;
+        margin: 0.35rem 0 0.45rem;
+      }
+      .card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
       .bar {
         display: flex; align-items: center; gap: 0.5rem;
         height: 3rem; padding: 0 0.75rem; background: #e6e0d4; border-radius: 8px;
@@ -61,26 +87,32 @@
       figcaption { margin-top: 0.6rem; }
       figcaption strong { display: block; font-family: Newsreader, Georgia, serif; font-size: 1.05rem; font-weight: 500; }
       figcaption em { color: var(--muted); font-style: normal; font-size: 0.8rem; }
-      footer { margin-top: 3rem; color: var(--muted); font-size: 0.78rem; }
-      @media (max-width: 560px) { .pair { grid-template-columns: 1fr; } }
+      footer { margin-top: 2.8rem; color: var(--muted); font-size: 0.9rem; }
+      @media (max-width: 560px) { .pair, .steps { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
     <div class="wrap">
       <header>
-        <img src="./onigiri-on.png" alt="" />
-        <div>
-          <div class="brand">Agare</div>
-          <p class="kana">召し上がれ</p>
+        <div class="brand-row">
+          <img src="./onigiri-on.png" alt="" />
+          <div>
+            <div class="brand">Agare</div>
+            <p class="tag">Safari highlighter – 召し上がれ</p>
+          </div>
         </div>
+        <a class="src" href="https://github.com/yvinc/agare-web-highlighter">Source code</a>
       </header>
-      <h1>A Safari highlighter for your Mac.</h1>
+      <h1>Safari highlighter – 召し上がれ</h1>
       <p class="lead">
-        Download the app, drag it into Applications, turn it on in Safari.
-        Highlights stay on this machine unless you export them.
+        Download the latest release, drag Agare into Applications, then open it.
+        First launch uses Xcode on this Mac; after that, turn Agare on in Safari.
       </p>
-      <a class="btn" id="download" href="#">Download Agare for Mac</a>
-      <p class="hint" id="dl-hint">Gets Agare.app.zip from the latest GitHub Release.</p>
+      <div class="actions">
+        <a class="btn" id="download" href="https://github.com/yvinc/agare-web-highlighter/releases/latest/download/Agare.app.zip">Download latest release</a>
+        <a class="btn ghost" href="https://github.com/yvinc/agare-web-highlighter">Visit source code</a>
+      </div>
+      <p class="hint" id="dl-hint">Agare.app.zip from the latest GitHub Release.</p>
       <div class="pair">
         <figure>
           <div class="bar">
@@ -103,10 +135,33 @@
           </figcaption>
         </figure>
       </div>
-      <h2>Install</h2>
+
+      <h2>Open Agare</h2>
+      <p class="lead" style="margin-top:0">From the latest release: unzip, drag Agare into Applications, then do these two steps.</p>
+      <div class="steps" style="margin-top:1rem">
+        <article class="card">
+          <div class="n">Open Anyway</div>
+          <h3>Privacy & Security</h3>
+          <p>
+            Double-click Agare. If Mac says it can’t be opened, go to
+            <strong>System Settings → Privacy & Security</strong>,
+            scroll to the bottom, and click <strong>Open Anyway</strong>.
+            Confirm, then open Agare again.
+          </p>
+        </article>
+        <article class="card">
+          <div class="n">First time</div>
+          <h3>Set up with Xcode</h3>
+          <p>
+            In the Agare window, click <strong>Set up with Xcode…</strong>
+            (first time on this Mac). Confirm the prompts. The helper copies
+            the project; the build happens in Xcode. Choose your Team, then press Run.
+          </p>
+        </article>
+      </div>
+
+      <h2>Turn it on in Safari</h2>
       <ol>
-        <li>Download <strong>Agare.app.zip</strong> and unzip it. Drag <strong>Agare</strong> into <strong>Applications</strong>.</li>
-        <li>Open Agare. If Mac says it can’t be opened: <strong>System Settings → Privacy & Security</strong>, scroll to the bottom, click <strong>Open Anyway</strong>, then open Agare again.</li>
         <li>Open <strong>Safari</strong>. Open Settings (press ⌘ and <strong>,</strong>).</li>
         <li><strong>Advanced</strong> — tick <strong>Show features for web developers</strong>. That adds a Developer tab.</li>
         <li><strong>Developer</strong> — tick <strong>Allow unsigned extensions</strong>. Enter your password if asked.</li>
@@ -114,35 +169,16 @@
       </ol>
       <p class="hint">
         If Agare is not in the list, quit Safari fully (Safari menu → Quit Safari), open Agare again, then check Extensions.
-        Safari turns off “Allow unsigned extensions” when it quits — tick it again next time.
-        If you already have Xcode: Agare → <strong>Set up with Xcode…</strong> and confirm the prompts.
       </p>
-      <footer>
-        Agare is a play on 召し上がれ — meshiagare. Personal use, CC BY-NC 4.0.
-      </footer>
+      <footer>Made with 🍙</footer>
     </div>
     <script>
       (async function () {
         const btn = document.getElementById("download");
         const hint = document.getElementById("dl-hint");
-        let slug = "";
-        try {
-          const cfg = await fetch("./repo.json").then((r) => r.json());
-          if (cfg.github && !cfg.github.includes("YOUR-USER")) slug = cfg.github;
-        } catch (_) {}
-        if (!slug && location.hostname.endsWith("github.io")) {
-          const user = location.hostname.split(".")[0];
-          const repo = location.pathname.split("/").filter(Boolean)[0] || "agare";
-          slug = user + "/" + repo;
-        }
-        if (slug) {
-          const url = "https://github.com/" + slug + "/releases/latest/download/Agare.app.zip";
-          btn.href = url;
-          hint.textContent = "Latest Release · " + slug;
-        } else {
-          btn.href = "https://github.com/";
-          hint.textContent = "Set docs/repo.json to your GitHub user/repo, then tag a Release.";
-        }
+        const slug = "yvinc/agare-web-highlighter";
+        btn.href = "https://github.com/" + slug + "/releases/latest/download/Agare.app.zip";
+        hint.textContent = "Latest Release · " + slug;
       })();
     </script>
   </body>
