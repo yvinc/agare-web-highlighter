@@ -1,7 +1,16 @@
 # Agare
 
 A personal Safari Web Extension for sentence highlighting and notes.
+## Install (Mac)
 
+1. Download **[Agare.app.zip](releases/latest/download/Agare.app.zip)** from [Releases](releases/latest).
+2. Unzip, then drag **Agare** into **Applications**.
+3. Right-click Agare → **Open** (the first time only).
+4. Click **Turn on in Safari…** and enable it.
+
+If Safari hides it: Safari → Settings → Developer → Allow unsigned extensions, then try again.
+
+# Features
 This extension includes the following key features:
 
 1.  Colours: Six inks (`#fff59e` lemon, `#fa9442` tangerine, `#a3ad00` olive, `#de4500` ember, `#96bfe6` sky, `#bf36e0` violet) with a transparency slider in `Settings`.
