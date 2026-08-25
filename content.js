@@ -187,7 +187,7 @@
       toolbar.innerHTML = `${closeBtn}<div class="enable">
         <p>Turn on Agare on this site.</p>
         <div class="enable-row">
-          <button class="btn" data-act="on-page" type="button">Turn on</button>
+          <button class="btn" data-act="on-page" type="button">Turn it on</button>
           <button class="btn ghost line" data-act="on-host" type="button">${esc(host)}</button>
         </div>
       </div>`;
@@ -265,6 +265,7 @@
   let gesture = null;
   let locked = false;
   let shownAt = 0;
+  let pointerSeq = 0;
 
   const dismissPopup = () => {
     locked = true;
@@ -284,24 +285,33 @@
     dismissTimer = setTimeout(() => {
       dismissTimer = 0;
       dismissPopup();
-    }, 280);
+    }, 500);
   };
 
   const showSelectToolbar = () => {
-    if (locked) return;
     const range = L.selInside();
-    if (!range) {
-      hideToolbar();
-      return;
-    }
+    if (!range) return false;
+    locked = false;
     const r = range.getBoundingClientRect();
     if (!pageOn()) {
       tb = { kind: "enable" };
       drawToolbar(r);
-      return;
+      return true;
     }
     tb = { kind: "select" };
     drawToolbar(r);
+    return true;
+  };
+
+  const queueSelectToolbar = () => {
+    cancelDismiss();
+    locked = false;
+    let n = 0;
+    const tick = () => {
+      if (showSelectToolbar()) return;
+      if (n++ < 12) requestAnimationFrame(tick);
+    };
+    tick();
   };
 
   const showEdit = (m, el, noteOpen, keepDraft) => {
@@ -500,9 +510,15 @@
       gesture = { ui: true };
       return;
     }
+    pointerSeq += 1;
+    const seq = pointerSeq;
     const hl = findHighlight(e);
-    gesture = { x: e.clientX, y: e.clientY, hl, detail: e.detail || 1 };
-    if (e.detail >= 2 && !hl) return;
+    gesture = { x: e.clientX, y: e.clientY, hl, detail: e.detail || 1, seq };
+    if ((e.detail || 0) >= 2 && !hl) {
+      cancelDismiss();
+      locked = false;
+      return;
+    }
     if (hl) {
       cancelDismiss();
       openHighlightBar(hl);
@@ -518,16 +534,13 @@
     const dbl = (e.detail || 0) >= 2 || (g.detail || 0) >= 2;
     const dragged = Math.hypot(e.clientX - g.x, e.clientY - g.y) > 12;
     const hl = g.hl || findHighlight(e);
+    const seq = g.seq;
     if (dbl && !hl) {
-      cancelDismiss();
-      locked = false;
-      requestAnimationFrame(() => {
-        locked = false;
-        showSelectToolbar();
-      });
+      queueSelectToolbar();
       return;
     }
     requestAnimationFrame(() => {
+      if (seq !== pointerSeq) return;
       if (hl && !dragged) {
         cancelDismiss();
         openHighlightBar(hl);
@@ -538,9 +551,7 @@
         const selected = range ? range.toString().replace(/\s+/g, " ").trim() : "";
         const inner = hl ? (hl.textContent || "").replace(/\s+/g, " ").trim() : "";
         if (range && (!hl || selected.length > inner.length + 2)) {
-          locked = false;
-          cancelDismiss();
-          showSelectToolbar();
+          queueSelectToolbar();
           return;
         }
         if (hl) {
@@ -556,8 +567,7 @@
   const onPageClick = (e) => {
     if (uiEvent(e)) return;
     if ((e.detail || 0) >= 2 && !findHighlight(e)) {
-      cancelDismiss();
-      locked = false;
+      queueSelectToolbar();
       return;
     }
     const hl = findHighlight(e);
@@ -614,10 +624,7 @@
       return;
     }
     locked = false;
-    requestAnimationFrame(() => {
-      locked = false;
-      showSelectToolbar();
-    });
+    queueSelectToolbar();
   });
 
   const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
