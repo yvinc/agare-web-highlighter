@@ -1,8 +1,8 @@
 Agare — automatic Personal Team
 
 Set up with Xcode:
-  1. macOS may show “Terminal wants to control this computer”. Click Allow.
-     Agare cannot flip Accessibility on without that popup.
+  1. If Accessibility is off, System Settings opens. Allow Terminal
+     (Privacy & Security → Accessibility), then Set up with Xcode again.
   2. The helper opens Signing & Capabilities, selects your name
      (Personal Team) — not red Unknown Name — saves, and builds both targets.
 

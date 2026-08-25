@@ -19,6 +19,14 @@ end run
 APPLESCRIPT
 }
 
+say_titled() {
+  osascript - "$1" "$2" <<'APPLESCRIPT'
+on run argv
+  display dialog (item 2 of argv) buttons {"OK"} default button 1 with title (item 1 of argv)
+end run
+APPLESCRIPT
+}
+
 confirm() {
   osascript - "$1" "$2" <<'APPLESCRIPT'
 on run argv
@@ -79,7 +87,11 @@ $.AXIsProcessTrustedWithOptions(opts) ? "1" : "0"
 JS
 )"
 if [[ "$AX_OK" != "1" ]]; then
-  say "macOS is asking to allow Terminal to control Xcode (Accessibility). Click Allow on that popup, then Set up with Xcode again. Agare cannot turn that switch on by itself."
+  open "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility" 2>/dev/null || \
+    open "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility" 2>/dev/null || true
+  say_titled "Accessibility is off" "Xcode setup automation needs Accessibility permission for Terminal. It is currently off.
+
+Open System Settings → Privacy & Security → Accessibility, turn on Terminal, then click Set up with Xcode again."
   exit 0
 fi
 

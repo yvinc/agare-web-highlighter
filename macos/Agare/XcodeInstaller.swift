@@ -7,7 +7,7 @@ enum XcodeInstaller {
         alert.informativeText = """
         Set up with Xcode quits Safari if it is open, so the new Agare extension can register. Save or finish anything you are doing in Safari first.
 
-        Then the helper opens Xcode, chooses your Personal Team, and builds. macOS may ask Terminal to control Xcode — click Allow.
+        Then the helper opens Xcode, chooses your Personal Team, and builds. If Terminal is not allowed under Privacy & Security → Accessibility, System Settings will open so you can turn it on, then run Set up with Xcode again.
         """
         alert.addButton(withTitle: "Proceed")
         alert.addButton(withTitle: "Cancel")
