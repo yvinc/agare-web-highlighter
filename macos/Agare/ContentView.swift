@@ -30,7 +30,7 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Turn Agare on in Safari")
                     .font(.headline)
-                Text("First time: Set up with Xcode. That signs Agare with a free Apple Development certificate (your Apple ID — no paid Developer Program) and registers it in Safari.")
+                Text("First time: Xcode → Settings → Accounts → add your free Apple ID, then Set up with Xcode. The helper signs both Agare targets and builds. No paid Developer Program.")
                 Text("Then Safari → Settings → Extensions → turn on Agare.")
                 Text("If Agare is missing, run Set up with Xcode again and wait until Safari reopens.")
                     .font(.caption)

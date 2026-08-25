@@ -5,11 +5,9 @@ enum XcodeInstaller {
         let alert = NSAlert()
         alert.messageText = "Set up with Xcode?"
         alert.informativeText = """
-        This copies the Agare Xcode project onto this Mac and opens it.
+        First time with Xcode: open Xcode → Settings → Accounts → + → Apple ID and sign in with your free iCloud account. You do not need the paid Developer Program.
 
-        Sign in with a free Apple ID (Xcode → Settings → Accounts). Select the Agare target, choose your Team, press Run. You do not need the paid Developer Program.
-
-        A HowToSign note opens with the same steps.
+        Then this helper stamps that Team on Agare and AgareExtension and builds. Safari will quit once so the extension can appear.
         """
         alert.addButton(withTitle: "Continue")
         alert.addButton(withTitle: "Cancel")
@@ -39,7 +37,7 @@ enum XcodeInstaller {
 
         let go = NSAlert()
         go.messageText = "Open Terminal to continue?"
-        go.informativeText = "macOS will ask you to run a script. Signing and the Safari registration happen there; Xcode is used to build."
+        go.informativeText = "macOS will ask you to run a script. If an Apple ID is already in Xcode Accounts, signing and the build happen there automatically."
         go.addButton(withTitle: "Open helper")
         go.addButton(withTitle: "Cancel")
         guard go.runModal() == .alertFirstButtonReturn else { return }

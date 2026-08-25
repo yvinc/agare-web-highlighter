@@ -8,7 +8,7 @@ The Pages site is **[yvinc.github.io/agare-web-highlighter](https://yvinc.github
 
 1. Download **Agare.app.zip**. Unzip. Drag **Agare** into **Applications**.
 2. Open Agare. If Mac says it can’t be opened: **System Settings → Privacy & Security**, scroll to the bottom, click **Open Anyway**, then open Agare again.
-3. First time: **Set up with Xcode…**. The helper signs Agare with a free Apple Development certificate (Apple ID in Xcode, no paid Developer Program) and registers it in Safari.
+3. First time: in Xcode, Settings → Accounts → add your free Apple ID. Then **Set up with Xcode…**. The helper stamps that Team on both targets, builds, and registers Agare in Safari.
 4. Safari → Settings → Extensions → turn on **Agare**.
 
 If Agare is not listed, quit Safari (Safari menu → Quit Safari), open Agare again, then check Extensions.
