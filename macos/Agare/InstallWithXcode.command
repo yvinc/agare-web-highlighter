@@ -106,7 +106,6 @@ xcodebuild -project Agare.xcodeproj -scheme Agare -configuration Debug \
   -destination "platform=macOS" \
   -derivedDataPath "$DEST/DerivedData" \
   DEVELOPMENT_TEAM="$TEAM" \
-  CODE_SIGN_IDENTITY="Apple Development" \
   CODE_SIGN_STYLE=Automatic \
   CODE_SIGNING_ALLOWED=YES \
   CODE_SIGNING_REQUIRED=YES \

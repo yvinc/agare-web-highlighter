@@ -14,9 +14,11 @@ Xcode should now show the Agare project. If you only see a welcome screen, open:
    Under TARGETS (not PROJECT):
      a. Click Agare (app icon) → Signing & Capabilities
         Tick “Automatically manage signing”. Team: your name / Apple ID.
+        Signing Certificate should fill in as “Apple Development” by itself.
      b. Click AgareExtension → Signing & Capabilities
-        Same: Automatically manage signing. Same Team as Agare.
-   Both must use the same Team or Xcode will error “embedded binary is not signed with the same certificate”.
+        Same Team as Agare. Certificate should also say Apple Development.
+   If it stays red: uncheck Automatically manage signing, check it again, pick Team.
+   Both targets must use that same Team.
 
 3. Run
    At the top of Xcode, the scheme should say:  Agare  >  My Mac
