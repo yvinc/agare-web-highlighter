@@ -185,7 +185,7 @@
     toolbar.style.visibility = "visible";
     if (tb && tb.kind === "enable") {
       toolbar.innerHTML = `${closeBtn}<div class="enable">
-        <p>Turn on Agare on this site.</p>
+        <p>Turn on Agare for ${esc(host)}</p>
         <div class="enable-row">
           <button class="btn" data-act="on-page" type="button">Turn it on</button>
           <button class="btn ghost line" data-act="on-host" type="button">${esc(host)}</button>
@@ -266,8 +266,12 @@
   let locked = false;
   let shownAt = 0;
   let pointerSeq = 0;
+  let lastX = 0;
+  let lastY = 0;
+  let wantWordBar = false;
 
   const dismissPopup = () => {
+    wantWordBar = false;
     locked = true;
     hideToolbar();
     hideBubble();
@@ -285,14 +289,17 @@
     dismissTimer = setTimeout(() => {
       dismissTimer = 0;
       dismissPopup();
-    }, 500);
+    }, 700);
   };
 
-  const showSelectToolbar = () => {
+  const showSelectToolbar = (anchor) => {
     const range = L.selInside();
     if (!range) return false;
     locked = false;
-    const r = range.getBoundingClientRect();
+    let r = range.getBoundingClientRect();
+    if (!r.width && !r.height) {
+      r = anchor || { left: lastX, width: 0, top: lastY };
+    }
     if (!pageOn()) {
       tb = { kind: "enable" };
       drawToolbar(r);
@@ -303,15 +310,16 @@
     return true;
   };
 
-  const queueSelectToolbar = () => {
+  const queueSelectToolbar = (anchor) => {
     cancelDismiss();
     locked = false;
-    let n = 0;
-    const tick = () => {
-      if (showSelectToolbar()) return;
-      if (n++ < 12) requestAnimationFrame(tick);
+    wantWordBar = true;
+    const tryShow = () => {
+      if (!wantWordBar) return;
+      if (showSelectToolbar(anchor)) wantWordBar = false;
     };
-    tick();
+    tryShow();
+    [16, 32, 64, 120, 200, 320, 480].forEach((ms) => setTimeout(tryShow, ms));
   };
 
   const showEdit = (m, el, noteOpen, keepDraft) => {
@@ -511,12 +519,15 @@
       return;
     }
     pointerSeq += 1;
+    lastX = e.clientX;
+    lastY = e.clientY;
     const seq = pointerSeq;
     const hl = findHighlight(e);
     gesture = { x: e.clientX, y: e.clientY, hl, detail: e.detail || 1, seq };
     if ((e.detail || 0) >= 2 && !hl) {
       cancelDismiss();
       locked = false;
+      wantWordBar = true;
       return;
     }
     if (hl) {
@@ -536,7 +547,9 @@
     const hl = g.hl || findHighlight(e);
     const seq = g.seq;
     if (dbl && !hl) {
-      queueSelectToolbar();
+      cancelDismiss();
+      locked = false;
+      wantWordBar = true;
       return;
     }
     requestAnimationFrame(() => {
@@ -567,7 +580,9 @@
   const onPageClick = (e) => {
     if (uiEvent(e)) return;
     if ((e.detail || 0) >= 2 && !findHighlight(e)) {
-      queueSelectToolbar();
+      cancelDismiss();
+      locked = false;
+      wantWordBar = true;
       return;
     }
     const hl = findHighlight(e);
@@ -586,8 +601,38 @@
   document.addEventListener("pointerdown", onPointerDown, true);
   document.addEventListener("pointerup", onPointerUp, true);
   document.addEventListener("click", onPageClick, true);
+  document.addEventListener("selectionchange", () => {
+    if (wantWordBar) showSelectToolbar({ left: lastX, width: 0, top: lastY });
+  });
+  document.addEventListener("dblclick", (e) => {
+    if (uiEvent(e)) return;
+    const hl = findHighlight(e) || (e.target.closest && e.target.closest("span.lumen-hl"));
+    cancelDismiss();
+    if (hl) {
+      if (!pageOn()) return;
+      e.preventDefault();
+      const m = marks.find((x) => x.i === hl.dataset.id);
+      if (!m) return;
+      wantWordBar = false;
+      hideToolbar();
+      hideBubble();
+      tab = m.n ? "notes" : "highlights";
+      panel.classList.add("open");
+      render();
+      const card = listEl.querySelector(`.card[data-id="${CSS.escape(m.i)}"]`);
+      if (card) card.scrollIntoView({ block: "nearest" });
+      return;
+    }
+    lastX = e.clientX;
+    lastY = e.clientY;
+    locked = false;
+    queueSelectToolbar({ left: e.clientX, width: 0, top: e.clientY });
+  }, true);
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") dismissPopup();
+    if (e.key === "Escape") {
+      wantWordBar = false;
+      dismissPopup();
+    }
   }, true);
 
   root.addEventListener("mouseover", (e) => {
@@ -605,26 +650,6 @@
   });
   root.addEventListener("mouseout", (e) => {
     if (!e.target.closest || !e.target.closest("span.lumen-hl")) hideBubble();
-  });
-  root.addEventListener("dblclick", (e) => {
-    cancelDismiss();
-    const hl = e.target.closest && e.target.closest("span.lumen-hl");
-    if (hl) {
-      if (!pageOn()) return;
-      e.preventDefault();
-      const m = marks.find((x) => x.i === hl.dataset.id);
-      if (!m) return;
-      hideToolbar();
-      hideBubble();
-      tab = m.n ? "notes" : "highlights";
-      panel.classList.add("open");
-      render();
-      const card = listEl.querySelector(`.card[data-id="${CSS.escape(m.i)}"]`);
-      if (card) card.scrollIntoView({ block: "nearest" });
-      return;
-    }
-    locked = false;
-    queueSelectToolbar();
   });
 
   const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
