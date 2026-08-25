@@ -31,13 +31,17 @@ struct ContentView: View {
                 Text("Turn Agare on in Safari")
                     .font(.headline)
                 Text("First time: Xcode → Settings → Accounts → add your free Apple ID, then Set up with Xcode. The helper signs both Agare targets and builds. No paid Developer Program.")
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("Then Safari → Settings → Extensions → turn on Agare. If several Agare rows appear, turn extras off and keep one.")
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("If Agare is missing, run Set up with Xcode again and wait until Safari reopens.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .font(.callout)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .multilineTextAlignment(.leading)
 
             if let note {
                 Text(note)
@@ -60,7 +64,7 @@ struct ContentView: View {
             }
         }
         .padding(28)
-        .frame(minWidth: 440, minHeight: 340)
+        .frame(minWidth: 360, idealWidth: 460, maxWidth: .infinity, minHeight: 300, maxHeight: .infinity, alignment: .topLeading)
         .onAppear(perform: refresh)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             refresh()

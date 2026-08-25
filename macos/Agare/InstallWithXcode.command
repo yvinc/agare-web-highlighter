@@ -88,7 +88,7 @@ if [[ ! -f "$PICK" ]]; then
   PICK="$(dirname "$0")/PickPersonalTeam.applescript"
 fi
 
-confirm "Agare will choose your name (Personal Team) in Xcode for both targets and then build. Continue?" "Sign and build"
+confirm "Agare will choose your Personal Team in Xcode and then build. Safari will quit if it is open. Continue?" "Proceed"
 
 set +e
 PICK_OUT="$(osascript "$PICK" 2>/dev/null)"

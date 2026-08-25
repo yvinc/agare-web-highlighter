@@ -3,13 +3,13 @@ import AppKit
 enum XcodeInstaller {
     static func run() {
         let alert = NSAlert()
-        alert.messageText = "Set up with Xcode?"
+        alert.messageText = "Safari will close"
         alert.informativeText = """
-        The helper opens Xcode, chooses your name (Personal Team) for Agare and AgareExtension, then builds.
+        Set up with Xcode quits Safari if it is open, so the new Agare extension can register. Save or finish anything you are doing in Safari first.
 
-        macOS will show a permission popup so Terminal can control Xcode. Click Allow — Agare cannot enable Accessibility by itself.
+        Then the helper opens Xcode, chooses your Personal Team, and builds. macOS may ask Terminal to control Xcode — click Allow.
         """
-        alert.addButton(withTitle: "Continue")
+        alert.addButton(withTitle: "Proceed")
         alert.addButton(withTitle: "Cancel")
         guard alert.runModal() == .alertFirstButtonReturn else { return }
 

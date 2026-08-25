@@ -6,7 +6,7 @@ struct AgareApp: App {
         WindowGroup {
             ContentView()
         }
-        .defaultSize(width: 440, height: 360)
-        .windowResizability(.contentSize)
+        .defaultSize(width: 460, height: 400)
+        .windowResizability(.contentMinSize)
     }
 }
