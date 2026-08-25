@@ -237,15 +237,90 @@ killall Agare 2>/dev/null || true
 osascript -e 'tell application "Safari" to quit' >/dev/null 2>&1 || true
 sleep 0.8
 
-rm -rf "$HOME/Applications/Agare.app"
+# One Agare only: unregister every old copy (GitHub zip, ~/Applications, DerivedData).
+python3 - "$BUILT" "$EXT_ID" <<'PY'
+import os, re, shutil, subprocess, sys
+from pathlib import Path
+
+built, ext_id = Path(sys.argv[1]), sys.argv[2]
+home = Path.home()
+lsregister = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+
+def run(cmd):
+    subprocess.call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+dump = ""
+for args in (
+    ["pluginkit", "-m", "-A", "-v", "-p", "com.apple.Safari.web-extension"],
+    ["pluginkit", "-m", "-A", "-v"],
+):
+    try:
+        dump += subprocess.check_output(args, text=True, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+appex = set(re.findall(r"(/[^\s]+AgareExtension\.appex)", dump))
+apps = set(re.findall(r"(/[^\s]+Agare\.app)(?:/|$)", dump))
+try:
+    found = subprocess.check_output(
+        ["mdfind", 'kMDItemCFBundleIdentifier == "ca.agare.highlighter"'],
+        text=True, stderr=subprocess.DEVNULL,
+    )
+    for line in found.splitlines():
+        if line.endswith(".app"):
+            apps.add(line.strip())
+        if "AgareExtension.appex" in line:
+            appex.add(line.strip())
+except Exception:
+    pass
+
+for p in (
+    Path("/Applications/Agare.app"),
+    home / "Applications/Agare.app",
+    built,
+):
+    if p.exists():
+        apps.add(str(p))
+        ax = p / "Contents/PlugIns/AgareExtension.appex"
+        if ax.exists():
+            appex.add(str(ax))
+
+dd = home / "Agare-build/DerivedData"
+if dd.exists():
+    for p in dd.glob("**/Agare.app"):
+        apps.add(str(p))
+    for p in dd.glob("**/AgareExtension.appex"):
+        appex.add(str(p))
+
+for p in list(appex):
+    run(["pluginkit", "-r", p])
+    run(["pluginkit", "-e", "ignore", "-i", ext_id])
+for p in list(apps):
+    run([lsregister, "-u", p])
+
+# Delete installed duplicates; keep the just-built product until we copy it.
+keep = {os.path.realpath(built)}
+for p in (Path("/Applications/Agare.app"), home / "Applications/Agare.app"):
+    if p.exists() and os.path.realpath(p) not in keep:
+        shutil.rmtree(p, ignore_errors=True)
+print("unregistered", len(appex), "appex", len(apps), "apps")
+PY
+
 mkdir -p "$HOME/Applications"
-ditto "$BUILT" "$HOME/Applications/Agare.app"
-INSTALLED="$HOME/Applications/Agare.app"
 if [[ -w /Applications ]]; then
   rm -rf /Applications/Agare.app
   ditto "$BUILT" /Applications/Agare.app
   INSTALLED="/Applications/Agare.app"
+  rm -rf "$HOME/Applications/Agare.app"
+else
+  rm -rf "$HOME/Applications/Agare.app"
+  ditto "$BUILT" "$HOME/Applications/Agare.app"
+  INSTALLED="$HOME/Applications/Agare.app"
 fi
+
+# Do not leave the DerivedData copy visible to Safari.
+pluginkit -r "$BUILT/Contents/PlugIns/AgareExtension.appex" >/dev/null 2>&1 || true
+"$LSREGISTER" -u "$BUILT" >/dev/null 2>&1 || true
 
 APPEX="$INSTALLED/Contents/PlugIns/AgareExtension.appex"
 "$LSREGISTER" -f "$INSTALLED" >/dev/null 2>&1 || true
@@ -261,4 +336,6 @@ defaults write "$SAFARI_PREF" AllowUnsignedExtensions -bool true
 open "$INSTALLED"
 sleep 1
 open -a Safari
-say "Signed with Personal Team ${TEAM} and installed at ${INSTALLED}. Safari → Settings → Extensions → turn on Agare."
+say "Signed with Personal Team ${TEAM} and installed at ${INSTALLED}.
+
+Safari → Settings → Extensions: turn on Agare. If more than one Agare is listed, leave only one on (turn the extras off)."

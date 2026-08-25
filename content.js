@@ -1,4 +1,7 @@
 (() => {
+  const bootRoot = document.documentElement;
+  if (!bootRoot || bootRoot.getAttribute("data-agare-boot") === "1") return;
+  bootRoot.setAttribute("data-agare-boot", "1");
   document.querySelectorAll("#lumen-root").forEach((n) => n.remove());
   window.__lumenBooted = true;
   const L = globalThis.Lumen;
