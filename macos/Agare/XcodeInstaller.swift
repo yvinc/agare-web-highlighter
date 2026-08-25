@@ -5,9 +5,9 @@ enum XcodeInstaller {
         let alert = NSAlert()
         alert.messageText = "Set up with Xcode?"
         alert.informativeText = """
-        First time with Xcode: open Xcode → Settings → Accounts → + → Apple ID and sign in with your free iCloud account. You do not need the paid Developer Program.
+        Xcode must already show an Apple ID under Settings → Accounts, with a Team under that account (your name is the free personal team).
 
-        Then this helper stamps that Team on Agare and AgareExtension and builds. Safari will quit once so the extension can appear.
+        The helper uses that Team for Agare and AgareExtension and builds with Apple Development. You do not need the paid Developer Program.
         """
         alert.addButton(withTitle: "Continue")
         alert.addButton(withTitle: "Cancel")
