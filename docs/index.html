@@ -64,13 +64,16 @@
       h2 { font-family: Newsreader, Georgia, serif; font-size: 1.35rem; font-weight: 500; margin: 2.1rem 0 0.7rem; }
       ol.install { padding-left: 1.35rem; color: var(--muted); }
       ol.install > li { margin: 1rem 0; }
-      ol.install > li > strong {
+      ol.install > li .step {
         display: block; color: var(--ink);
         font-family: Newsreader, Georgia, serif; font-size: 1.12rem; font-weight: 500;
         margin-bottom: 0.3rem;
       }
+      ol.install > li strong { color: var(--ink); font-weight: 600; }
       ol.install ol { margin: 0.45rem 0 0; padding-left: 1.2rem; }
       ol.install ol li { margin: 0.35rem 0; }
+      .perms { color: var(--muted); padding-left: 1.35rem; }
+      .perms li { margin: 0.55rem 0; }
       .pair {
         display: grid; gap: 1rem; grid-template-columns: 1fr 1fr;
         background: var(--paper); border: 1px solid var(--line);
@@ -135,25 +138,34 @@
       <h2>Install</h2>
       <ol class="install">
         <li>
-          <strong>Privacy & Security</strong>
+          <span class="step">Privacy & Security</span>
           Unzip the latest release and drag Agare into Applications. Double-click it.
           If Mac says it can’t be opened: <strong>System Settings → Privacy & Security</strong>,
           scroll to the bottom, click <strong>Open Anyway</strong>, confirm, then open Agare again.
         </li>
         <li>
-          <strong>Set up with Xcode</strong>
+          <span class="step">Set up with Xcode</span>
           First time on this Mac: in Xcode, Settings → Accounts → add your free Apple ID.
           Then in the Agare window click <strong>Set up with Xcode…</strong>.
           The helper stamps that Team on Agare and AgareExtension, builds, and registers
           the extension (Safari will quit once). No paid Developer Program.
         </li>
         <li>
-          <strong>Turn it on in Safari</strong>
+          <span class="step">Turn it on in Safari</span>
           Safari → Settings → Extensions → turn on <strong>Agare</strong>.
           If it is missing, run Set up with Xcode again and wait for Safari to reopen.
         </li>
       </ol>
-      <footer>COPYLEFT 2025 © · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> · Made with 🍙</footer>
+
+      <h2>Permissions for Set up with Xcode</h2>
+      <ol class="perms">
+        <li><strong>Open Anyway</strong> — System Settings → Privacy & Security, so the unsigned download of Agare.app can launch.</li>
+        <li><strong>Xcode</strong> — installed from the App Store, opened once (licence). A free Apple ID in Xcode → Settings → Accounts.</li>
+        <li><strong>Terminal in Accessibility</strong> — System Settings → Privacy & Security → Accessibility, turn on Terminal so the helper can choose Personal Team in Xcode. <strong>Then restart Set up with Xcode.</strong></li>
+        <li><strong>Automation</strong> — if asked, allow Terminal to control Xcode and System Events.</li>
+        <li><strong>Safari</strong> — will quit once while the extension registers. After that: Safari → Settings → Extensions → turn on Agare.</li>
+      </ol>
+      <footer>COPYLEFT 2026 © · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> · Made with 🍙</footer>
     </div>
     <script>
       document.getElementById("download").href =
