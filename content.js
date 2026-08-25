@@ -185,9 +185,9 @@
     toolbar.style.visibility = "visible";
     if (tb && tb.kind === "enable") {
       toolbar.innerHTML = `${closeBtn}<div class="enable">
-        <p>Agare is off on this page.</p>
+        <p>Turn on Agare on this site.</p>
         <div class="enable-row">
-          <button class="btn" data-act="on-page" type="button">This page</button>
+          <button class="btn" data-act="on-page" type="button">Turn on</button>
           <button class="btn ghost line" data-act="on-host" type="button">${esc(host)}</button>
         </div>
       </div>`;
@@ -520,6 +520,11 @@
     const hl = g.hl || findHighlight(e);
     if (dbl && !hl) {
       cancelDismiss();
+      locked = false;
+      requestAnimationFrame(() => {
+        locked = false;
+        showSelectToolbar();
+      });
       return;
     }
     requestAnimationFrame(() => {
@@ -552,6 +557,7 @@
     if (uiEvent(e)) return;
     if ((e.detail || 0) >= 2 && !findHighlight(e)) {
       cancelDismiss();
+      locked = false;
       return;
     }
     const hl = findHighlight(e);
@@ -593,18 +599,25 @@
   root.addEventListener("dblclick", (e) => {
     cancelDismiss();
     const hl = e.target.closest && e.target.closest("span.lumen-hl");
-    if (!hl) return;
-    if (!pageOn()) return;
-    e.preventDefault();
-    const m = marks.find((x) => x.i === hl.dataset.id);
-    if (!m) return;
-    hideToolbar();
-    hideBubble();
-    tab = m.n ? "notes" : "highlights";
-    panel.classList.add("open");
-    render();
-    const card = listEl.querySelector(`.card[data-id="${CSS.escape(m.i)}"]`);
-    if (card) card.scrollIntoView({ block: "nearest" });
+    if (hl) {
+      if (!pageOn()) return;
+      e.preventDefault();
+      const m = marks.find((x) => x.i === hl.dataset.id);
+      if (!m) return;
+      hideToolbar();
+      hideBubble();
+      tab = m.n ? "notes" : "highlights";
+      panel.classList.add("open");
+      render();
+      const card = listEl.querySelector(`.card[data-id="${CSS.escape(m.i)}"]`);
+      if (card) card.scrollIntoView({ block: "nearest" });
+      return;
+    }
+    locked = false;
+    requestAnimationFrame(() => {
+      locked = false;
+      showSelectToolbar();
+    });
   });
 
   const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
