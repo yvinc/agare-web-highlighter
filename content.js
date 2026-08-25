@@ -267,8 +267,21 @@
     locked = true;
     hideToolbar();
     hideBubble();
-    const sel = document.getSelection();
-    if (sel && !sel.isCollapsed) sel.removeAllRanges();
+  };
+
+  let dismissTimer = 0;
+  const cancelDismiss = () => {
+    if (dismissTimer) {
+      clearTimeout(dismissTimer);
+      dismissTimer = 0;
+    }
+  };
+  const scheduleDismiss = () => {
+    cancelDismiss();
+    dismissTimer = setTimeout(() => {
+      dismissTimer = 0;
+      dismissPopup();
+    }, 280);
   };
 
   const showSelectToolbar = () => {
@@ -485,8 +498,10 @@
       return;
     }
     const hl = findHighlight(e);
-    gesture = { x: e.clientX, y: e.clientY, hl };
+    gesture = { x: e.clientX, y: e.clientY, hl, detail: e.detail || 1 };
+    if (e.detail >= 2 && !hl) return;
     if (hl) {
+      cancelDismiss();
       openHighlightBar(hl);
       return;
     }
@@ -497,10 +512,16 @@
     const g = gesture;
     gesture = null;
     if (!g || g.ui || uiEvent(e)) return;
+    const dbl = (e.detail || 0) >= 2 || (g.detail || 0) >= 2;
     const dragged = Math.hypot(e.clientX - g.x, e.clientY - g.y) > 12;
     const hl = g.hl || findHighlight(e);
+    if (dbl && !hl) {
+      cancelDismiss();
+      return;
+    }
     requestAnimationFrame(() => {
       if (hl && !dragged) {
+        cancelDismiss();
         openHighlightBar(hl);
         return;
       }
@@ -510,36 +531,41 @@
         const inner = hl ? (hl.textContent || "").replace(/\s+/g, " ").trim() : "";
         if (range && (!hl || selected.length > inner.length + 2)) {
           locked = false;
+          cancelDismiss();
           showSelectToolbar();
           return;
         }
         if (hl) {
+          cancelDismiss();
           openHighlightBar(hl);
           return;
         }
       }
-      dismissPopup();
+      scheduleDismiss();
     });
   };
 
   const onPageClick = (e) => {
     if (uiEvent(e)) return;
+    if ((e.detail || 0) >= 2 && !findHighlight(e)) {
+      cancelDismiss();
+      return;
+    }
     const hl = findHighlight(e);
     if (hl) {
       if (e.detail >= 2) return;
+      cancelDismiss();
       openHighlightBar(hl);
       e.stopPropagation();
       return;
     }
     if (toolbar.hidden) return;
     if (Date.now() - shownAt < 300) return;
-    dismissPopup();
+    scheduleDismiss();
   };
 
   document.addEventListener("pointerdown", onPointerDown, true);
-  document.addEventListener("mousedown", onPointerDown, true);
   document.addEventListener("pointerup", onPointerUp, true);
-  document.addEventListener("mouseup", onPointerUp, true);
   document.addEventListener("click", onPageClick, true);
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") dismissPopup();
@@ -562,14 +588,13 @@
     if (!e.target.closest || !e.target.closest("span.lumen-hl")) hideBubble();
   });
   root.addEventListener("dblclick", (e) => {
-    if (!pageOn()) return;
+    cancelDismiss();
     const hl = e.target.closest && e.target.closest("span.lumen-hl");
     if (!hl) return;
+    if (!pageOn()) return;
     e.preventDefault();
     const m = marks.find((x) => x.i === hl.dataset.id);
     if (!m) return;
-    const sel = document.getSelection();
-    if (sel) sel.removeAllRanges();
     hideToolbar();
     hideBubble();
     tab = m.n ? "notes" : "highlights";

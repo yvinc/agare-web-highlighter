@@ -70,24 +70,28 @@ PY
 open "$PROJ"
 sleep 2
 
-PICK="$DEST/macos/Agare/PickPersonalTeam.js"
-if [[ ! -f "$PICK" ]]; then
-  PICK="$(dirname "$0")/PickPersonalTeam.js"
-fi
-
-AX="$(osascript -e 'tell application "System Events" to get UI elements enabled' 2>/dev/null || true)"
-if [[ "$AX" != "true" ]]; then
-  open "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility" 2>/dev/null || \
-    open "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility" 2>/dev/null || true
-  say "Allow Terminal (or iTerm) in System Settings → Privacy & Security → Accessibility, so Agare can choose Personal Team in Xcode. Then click Set up with Xcode again."
+# Official Accessibility permission popup (TCC). macOS will not let us click Allow for you.
+AX_OK="$(osascript -l JavaScript <<'JS'
+ObjC.import("ApplicationServices")
+const opts = $.NSMutableDictionary.dictionary
+opts.setObjectForKey(true, "AXTrustedCheckOptionPrompt")
+$.AXIsProcessTrustedWithOptions(opts) ? "1" : "0"
+JS
+)"
+if [[ "$AX_OK" != "1" ]]; then
+  say "macOS is asking to allow Terminal to control Xcode (Accessibility). Click Allow on that popup, then Set up with Xcode again. Agare cannot turn that switch on by itself."
   exit 0
 fi
 
-confirm "Agare will switch Xcode’s Team menu to your name (Personal Team) on both targets — not the red Unknown Name certificate — then build. Continue?" "Choose Personal Team"
+PICK="$DEST/macos/Agare/PickPersonalTeam.applescript"
+if [[ ! -f "$PICK" ]]; then
+  PICK="$(dirname "$0")/PickPersonalTeam.applescript"
+fi
+
+confirm "Agare will choose your name (Personal Team) in Xcode for both targets and then build. Continue?" "Sign and build"
 
 set +e
-PICK_OUT="$(osascript -l JavaScript "$PICK" 2>/dev/null)"
-PICK_STATUS=$?
+PICK_OUT="$(osascript "$PICK" 2>/dev/null)"
 set -e
 
 read_team() {

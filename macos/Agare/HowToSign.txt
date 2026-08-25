@@ -1,12 +1,10 @@
 Agare — automatic Personal Team
 
-Set up with Xcode opens the project and clicks:
-  Team → [Your name] (Personal Team)
-on both Agare and AgareExtension.
+Set up with Xcode:
+  1. macOS may show “Terminal wants to control this computer”. Click Allow.
+     Agare cannot flip Accessibility on without that popup.
+  2. The helper opens Signing & Capabilities, selects your name
+     (Personal Team) — not red Unknown Name — saves, and builds both targets.
 
-Allow Terminal (or iTerm) in:
-  System Settings → Privacy & Security → Accessibility
-the first time macOS asks.
-
-Do not leave Team on red “Unknown Name (certificate ID)”.
-That ID is a leftover Keychain cert, not your Personal Team.
+If Team is still red Unknown Name, click your name (Personal Team) once,
+then run Set up with Xcode again.

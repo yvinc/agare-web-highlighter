@@ -5,9 +5,9 @@ enum XcodeInstaller {
         let alert = NSAlert()
         alert.messageText = "Set up with Xcode?"
         alert.informativeText = """
-        The helper opens Xcode and chooses your name (Personal Team) on Agare and AgareExtension — not the red Unknown Name Keychain certificate.
+        The helper opens Xcode, chooses your name (Personal Team) for Agare and AgareExtension, then builds.
 
-        macOS may ask to allow Terminal to control Xcode (Accessibility). Allow that. Free Apple ID; no paid program.
+        macOS will show a permission popup so Terminal can control Xcode. Click Allow — Agare cannot enable Accessibility by itself.
         """
         alert.addButton(withTitle: "Continue")
         alert.addButton(withTitle: "Cancel")
