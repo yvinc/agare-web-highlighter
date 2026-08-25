@@ -227,6 +227,38 @@
     return !!(t && (toolbar.contains(t) || panel.contains(t)));
   };
 
+  const findHighlight = (e) => {
+    const path = e.composedPath ? e.composedPath() : [];
+    for (let i = 0; i < path.length; i++) {
+      const n = path[i];
+      if (n && n.classList && n.classList.contains("lumen-hl")) return n;
+    }
+    let t = e.target;
+    if (t && t.nodeType === 3) t = t.parentElement;
+    const via = t && t.closest ? t.closest("span.lumen-hl") : null;
+    if (via) return via;
+    const pts = (document.elementsFromPoint && document.elementsFromPoint(e.clientX, e.clientY)) || [];
+    for (let i = 0; i < pts.length; i++) {
+      const n = pts[i];
+      if (!n || n === hostEl || (n.id && n.id === "lumen-root")) continue;
+      const hl = n.closest && n.closest("span.lumen-hl");
+      if (hl) return hl;
+    }
+    return null;
+  };
+
+  const openHighlightBar = (hl) => {
+    if (!hl) return false;
+    if (!pageOn()) return false;
+    const id = hl.getAttribute("data-id") || (hl.dataset && hl.dataset.id);
+    const m = marks.find((x) => x.i === id);
+    if (!m) return false;
+    locked = false;
+    hideBubble();
+    showEdit(m, hl, !!(tb && tb.id === m.i && tb.noteOpen));
+    return true;
+  };
+
   let gesture = null;
   let locked = false;
   let shownAt = 0;
@@ -452,7 +484,12 @@
       gesture = { ui: true };
       return;
     }
-    gesture = { x: e.clientX, y: e.clientY };
+    const hl = findHighlight(e);
+    gesture = { x: e.clientX, y: e.clientY, hl };
+    if (hl) {
+      openHighlightBar(hl);
+      return;
+    }
     hideToolbar();
   };
 
@@ -460,38 +497,53 @@
     const g = gesture;
     gesture = null;
     if (!g || g.ui || uiEvent(e)) return;
-    const dragged = Math.hypot(e.clientX - g.x, e.clientY - g.y) > 8;
-    const multi = e.detail >= 2;
+    const dragged = Math.hypot(e.clientX - g.x, e.clientY - g.y) > 12;
+    const hl = g.hl || findHighlight(e);
     requestAnimationFrame(() => {
-      if (dragged || multi) {
-        locked = false;
-        showSelectToolbar();
+      if (hl && !dragged) {
+        openHighlightBar(hl);
         return;
+      }
+      if (dragged) {
+        const range = L.selInside();
+        const selected = range ? range.toString().replace(/\s+/g, " ").trim() : "";
+        const inner = hl ? (hl.textContent || "").replace(/\s+/g, " ").trim() : "";
+        if (range && (!hl || selected.length > inner.length + 2)) {
+          locked = false;
+          showSelectToolbar();
+          return;
+        }
+        if (hl) {
+          openHighlightBar(hl);
+          return;
+        }
       }
       dismissPopup();
     });
   };
 
   const onPageClick = (e) => {
-    if (toolbar.hidden) return;
     if (uiEvent(e)) return;
+    const hl = findHighlight(e);
+    if (hl) {
+      if (e.detail >= 2) return;
+      openHighlightBar(hl);
+      e.stopPropagation();
+      return;
+    }
+    if (toolbar.hidden) return;
     if (Date.now() - shownAt < 300) return;
     dismissPopup();
   };
 
   document.addEventListener("pointerdown", onPointerDown, true);
-  window.addEventListener("pointerdown", onPointerDown, true);
+  document.addEventListener("mousedown", onPointerDown, true);
   document.addEventListener("pointerup", onPointerUp, true);
-  window.addEventListener("pointerup", onPointerUp, true);
+  document.addEventListener("mouseup", onPointerUp, true);
   document.addEventListener("click", onPageClick, true);
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") dismissPopup();
   }, true);
-
-  document.addEventListener("selectionchange", () => {
-    if (locked) return;
-    if (!L.selInside() && !(tb && tb.noteOpen)) hideToolbar();
-  });
 
   root.addEventListener("mouseover", (e) => {
     if (!pageOn() || (tb && tb.kind === "edit")) { hideBubble(); return; }
@@ -508,22 +560,6 @@
   });
   root.addEventListener("mouseout", (e) => {
     if (!e.target.closest || !e.target.closest("span.lumen-hl")) hideBubble();
-  });
-  root.addEventListener("click", (e) => {
-    if (!pageOn()) return;
-    if (e.detail >= 2) return;
-    const hl = e.target.closest && e.target.closest("span.lumen-hl");
-    if (!hl) return;
-    const sel = document.getSelection();
-    if (sel && !sel.isCollapsed) {
-      const selected = sel.toString().replace(/\s+/g, " ").trim();
-      const inner = (hl.textContent || "").replace(/\s+/g, " ").trim();
-      if (selected.length > inner.length + 2) return;
-    }
-    const m = marks.find((x) => x.i === hl.dataset.id);
-    if (!m) return;
-    sel && sel.removeAllRanges();
-    showEdit(m, hl, false);
   });
   root.addEventListener("dblclick", (e) => {
     if (!pageOn()) return;
