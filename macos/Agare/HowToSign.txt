@@ -1,12 +1,17 @@
-Agare — if Set up with Xcode said “No Account for Team”
+Agare — only if Set up with Xcode could not finish by itself
 
-The helper only uses teams listed under Xcode → Settings → Accounts.
-A leftover “Apple Development” item in Keychain is ignored on purpose.
+The helper signs both Agare and AgareExtension with the Apple ID already in
+Xcode → Settings → Accounts. You do not pay for a Developer Program.
 
-1. Xcode → Settings (⌘,) → Accounts
-2. Select your Apple ID. If it looks expired, sign out and sign in again.
-3. Under that account a Team must appear (your name = free personal team).
-4. Click Set up with Xcode again in the Agare window.
+If the helper said there is no Apple ID:
+  1. Xcode → Settings (⌘,) → Accounts → + → Apple ID
+  2. Sign in with your iCloud Apple ID
+  3. Click Set up with Xcode again in the Agare window
 
-The helper then stamps that Team on both Agare and AgareExtension and
-signs with “Apple Development” (not the old “Mac Development” certificate).
+If the helper built but Safari has no Agare:
+  Safari → Settings → Extensions → turn on Agare
+
+If the helper opened this project because the build failed:
+  TARGETS → Agare → Signing & Capabilities → Team (your name)
+  TARGETS → AgareExtension → the same Team
+  Scheme: Agare > My Mac  →  press ▶ Run
