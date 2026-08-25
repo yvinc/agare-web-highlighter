@@ -86,13 +86,11 @@ STEPS="In the Xcode window that just opened:
    Sign in with your free iCloud Apple ID (not a paid Developer Program).
 
 2. Left sidebar: click the blue Agare project icon at the top.
-   Under TARGETS click Agare (the app icon). The scheme at the top should say Agare > My Mac.
+   Under TARGETS, set Signing & Capabilities → Team on BOTH Agare and AgareExtension (same free Apple ID).
 
-3. Signing & Capabilities → tick Automatically manage signing → Team → your name.
+3. Scheme at the top: Agare > My Mac. Press Play ▶ (Product → Run).
 
-4. Press the Play button ▶  (Product → Run).
-
-5. Safari → Settings → Extensions → turn on Agare.
+4. Safari → Settings → Extensions → turn on Agare.
 
 A file named HowToSign is also open with these steps."
 
