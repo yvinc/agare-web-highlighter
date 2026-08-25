@@ -3,12 +3,15 @@
 A personal Safari Web Extension for sentence highlighting and notes.
 ## Install (Mac)
 
-1. Download **[Agare.app.zip](releases/latest/download/Agare.app.zip)** from [Releases](releases/latest).
-2. Unzip, then drag **Agare** into **Applications**.
-3. Right-click Agare → **Open** (the first time only).
-4. Click **Turn on in Safari…** and enable it.
+1. Download **[Agare.app.zip](https://github.com/yvinc/agare-web-highlighter/releases/latest/download/Agare.app.zip)** from [Releases](https://github.com/yvinc/agare-web-highlighter/releases/latest). Unzip, then drag **Agare** into **Applications**.
+2. Open Agare. If Mac blocks it: **System Settings → Privacy & Security**, scroll to the bottom, click **Open Anyway**, then open Agare again.
+3. First time: in the Agare window, click **Set up with Xcode…** and confirm the prompts. The build happens in Xcode — choose your Team, then press Run.
+4. In **Safari**, open Settings (⌘,).
+   - **Advanced** — tick **Show features for web developers** (this adds the Developer tab).
+   - **Developer** — tick **Allow unsigned extensions**.
+   - **Extensions** — turn on **Agare**.
 
-If Safari hides it: Safari → Settings → Developer → Allow unsigned extensions, then try again.
+If Agare is missing from the list, quit Safari fully and open Agare again.
 
 # Features
 This extension includes the following key features:
