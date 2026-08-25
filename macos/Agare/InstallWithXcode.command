@@ -1,11 +1,13 @@
 #!/bin/zsh
-# Detects the free Xcode Apple ID team, stamps it on Agare + AgareExtension, then builds.
+# Automates Xcode Team → “(Personal Team)” on both targets, then builds.
 set -euo pipefail
 export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
 
 APP="$(cd "$(dirname "$0")/../.." && pwd)"
 KIT="$APP/Contents/Resources/Kit"
 DEST="$HOME/Agare-build"
+PROJ="$DEST/macos/Agare.xcodeproj"
+FAILFILE="$HOME/Library/Application Support/Agare/failed-teams.txt"
 LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 EXT_ID="ca.agare.highlighter.extension"
 
@@ -29,133 +31,157 @@ if [[ ! -d "$KIT/macos/Agare.xcodeproj" ]]; then
   say "This copy of Agare is missing its Xcode project. Download Agare.app from GitHub Releases again."
   exit 1
 fi
-
 if [[ ! -d /Applications/Xcode.app ]]; then
   open "macappstores://apps.apple.com/app/xcode/id497799835"
-  say "Install Xcode from the App Store, open it once (accept the licence), then click Set up with Xcode again."
+  say "Install Xcode from the App Store, open it once, then click Set up with Xcode again."
   exit 1
 fi
-
 if ! xcodebuild -version >/dev/null 2>&1; then
   open -a Xcode
   say "Open Xcode once to finish its setup (accept the licence), then click Set up with Xcode again."
   exit 1
 fi
 
-TEAM_INFO="$(python3 - <<'PY'
-import re, subprocess
+mkdir -p "$(dirname "$FAILFILE")"
+touch "$FAILFILE"
 
-def teams_from_xcode():
-    try:
-        raw = subprocess.check_output(
-            ["defaults", "read", "com.apple.dt.Xcode", "IDEProvisioningTeams"],
-            text=True, stderr=subprocess.DEVNULL,
-        )
-    except subprocess.CalledProcessError:
-        return []
-    blocks = re.split(r"\{", raw)
-    found = []
-    for b in blocks:
-        tid = re.search(r"teamID\s*=\s*([A-Z0-9]{10})", b)
-        if not tid:
-            continue
-        name = re.search(r'teamName\s*=\s*"([^"]+)"', b)
-        free = bool(re.search(r"isFreeTeamTeam\s*=\s*1", b))
-        found.append((tid.group(1), name.group(1) if name else "", free))
-    # unique, free first
-    seen, out = set(), []
-    for row in sorted(found, key=lambda r: (not r[2], r[0])):
-        if row[0] in seen:
-            continue
-        seen.add(row[0])
-        out.append(row)
-    return out
+if [[ ! -d "$PROJ" ]]; then
+  rm -rf "$DEST"
+  ditto "$KIT" "$DEST"
+fi
+test -d "$PROJ"
 
-def team_from_identities():
-    try:
-        out = subprocess.check_output(
-            ["security", "find-identity", "-p", "codesigning", "-v"],
-            text=True, stderr=subprocess.DEVNULL,
-        )
-    except subprocess.CalledProcessError:
-        return ""
-    for line in out.splitlines():
-        if "Apple Development" not in line or "CSSMERR" in line:
-            continue
-        m = re.search(r"\(([A-Z0-9]{10})\)", line)
-        if m:
-            return m.group(1)
-    return ""
-
-def last_selected():
-    try:
-        raw = subprocess.check_output(
-            ["defaults", "read", "com.apple.dt.Xcode", "IDELastSelectedProvisioningTeam"],
-            text=True, stderr=subprocess.DEVNULL,
-        ).strip().strip('"')
-    except subprocess.CalledProcessError:
-        return ""
-    return raw if re.fullmatch(r"[A-Z0-9]{10}", raw) else ""
-
-teams = teams_from_xcode()
-last = last_selected()
-chosen = None
-for tid, name, free in teams:
-    if last and tid == last:
-        chosen = (tid, name, free)
-        break
-if chosen is None and teams:
-    chosen = teams[0]
-if chosen is None:
-    ident = team_from_identities()
-    if ident:
-        chosen = (ident, "", True)
-
-if not chosen:
-    print("")
-else:
-    tid, name, free = chosen
-    label = name or tid
-    kind = "free" if free else "paid"
-    print(f"{tid}\t{label}\t{kind}")
+# Strip Keychain-cert team IDs that already failed as “Unknown Name”.
+python3 - "$PROJ/project.pbxproj" "$FAILFILE" <<'PY'
+import re, sys
+pbx, fail = sys.argv[1], sys.argv[2]
+bad = {l.strip() for l in open(fail) if l.strip()}
+if not bad:
+    raise SystemExit
+text = open(pbx).read()
+def keep(m):
+    return "" if m.group(1) in bad else m.group(0)
+text2 = re.sub(r"DEVELOPMENT_TEAM = ([A-Z0-9]{10});", keep, text)
+text2 = re.sub(r"DevelopmentTeam = ([A-Z0-9]{10});", keep, text2)
+if text2 != text:
+    open(pbx, "w").write(text2)
 PY
-)"
 
-if [[ -z "$TEAM_INFO" ]]; then
-  open -a Xcode
-  say "Xcode has no Apple ID yet. In Xcode: Settings (⌘,) → Accounts → + → Apple ID. Sign in with your free iCloud account (not the paid Developer Program). Then click Set up with Xcode again."
+open "$PROJ"
+sleep 2
+
+PICK="$DEST/macos/Agare/PickPersonalTeam.js"
+if [[ ! -f "$PICK" ]]; then
+  PICK="$(dirname "$0")/PickPersonalTeam.js"
+fi
+
+AX="$(osascript -e 'tell application "System Events" to get UI elements enabled' 2>/dev/null || true)"
+if [[ "$AX" != "true" ]]; then
+  open "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility" 2>/dev/null || \
+    open "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility" 2>/dev/null || true
+  say "Allow Terminal (or iTerm) in System Settings → Privacy & Security → Accessibility, so Agare can choose Personal Team in Xcode. Then click Set up with Xcode again."
   exit 0
 fi
 
-TEAM="${TEAM_INFO%%$'\t'*}"
-REST="${TEAM_INFO#*$'\t'}"
-TEAM_NAME="${REST%%$'\t'*}"
-KIND="${REST##*$'\t'}"
-LABEL="$TEAM"
-if [[ -n "$TEAM_NAME" && "$TEAM_NAME" != "$TEAM" ]]; then
-  LABEL="$TEAM_NAME ($TEAM)"
+confirm "Agare will switch Xcode’s Team menu to your name (Personal Team) on both targets — not the red Unknown Name certificate — then build. Continue?" "Choose Personal Team"
+
+set +e
+PICK_OUT="$(osascript -l JavaScript "$PICK" 2>/dev/null)"
+PICK_STATUS=$?
+set -e
+
+read_team() {
+  python3 - "$PROJ/project.pbxproj" "$FAILFILE" "$HOME" <<'PY'
+import plistlib, re, sys
+from pathlib import Path
+pbx, fail, home = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+bad = {l.strip() for l in fail.read_text().splitlines() if l.strip()}
+
+def add(tid, bucket):
+    if re.fullmatch(r"[A-Z0-9]{10}", tid or "") and tid not in bad:
+        bucket.append(tid)
+
+found = []
+text = pbx.read_text(errors="ignore") if pbx.exists() else ""
+for tid in re.findall(r"DEVELOPMENT_TEAM = ([A-Z0-9]{10});", text):
+    add(tid, found)
+for tid in re.findall(r"DevelopmentTeam = ([A-Z0-9]{10});", text):
+    add(tid, found)
+
+# Free/personal team records Xcode caches after the dropdown has been used.
+free = []
+def walk(obj):
+    if isinstance(obj, dict):
+        tid = obj.get("teamID") or obj.get("teamId")
+        name = str(obj.get("teamName") or obj.get("name") or "")
+        is_free = bool(
+            obj.get("isFreeTeamTeam")
+            or obj.get("isFreeProvisioningTeam")
+            or obj.get("isPersonalTeam")
+            or "personal team" in name.lower()
+        )
+        if is_free:
+            add(str(tid or ""), free)
+        for v in obj.values():
+            walk(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            walk(v)
+
+roots = [
+    home / "Library/Preferences/com.apple.dt.Xcode.plist",
+]
+roots += list((home / "Library/Developer/Xcode").glob("DeveloperPortal*"))
+roots.append(home / "Library/Developer/Xcode/UserData")
+for root in roots:
+    if not root.exists():
+        continue
+    paths = [root] if root.is_file() else list(root.rglob("*.plist"))[:80]
+    for path in paths:
+        if path.is_dir():
+            continue
+        try:
+            with path.open("rb") as f:
+                walk(plistlib.load(f))
+        except Exception:
+            continue
+
+# Prefer IDs Xcode just wrote, then cached personal teams.
+ordered, seen = [], set()
+for tid in found + free:
+    if tid in seen:
+        continue
+    seen.add(tid)
+    ordered.append(tid)
+print(ordered[0] if ordered else "")
+PY
+}
+
+TEAM=""
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+  TEAM="$(read_team)"
+  [[ -n "$TEAM" ]] && break
+  sleep 1
+done
+
+if [[ -z "$TEAM" ]]; then
+  say "Could not select Personal Team automatically (${PICK_OUT:-no UI result}).
+
+In Xcode, on Agare and AgareExtension, open Team and click your name (Personal Team) — not red Unknown Name. Then Set up with Xcode again.
+
+If macOS asked to control Xcode, click Allow and retry."
+  exit 0
 fi
-
-confirm "Agare will sign both the app and the Safari extension with your Xcode team:
-${LABEL}
-
-No paid Developer Program is required. Safari will quit once after the build. Continue?" "Sign and build"
-
-rm -rf "$DEST"
-ditto "$KIT" "$DEST"
-PROJ="$DEST/macos/Agare.xcodeproj"
-test -d "$PROJ"
 
 python3 - "$PROJ/project.pbxproj" "$TEAM" <<'PY'
 import re, sys
 path, team = sys.argv[1], sys.argv[2]
-if not re.fullmatch(r"[A-Z0-9]{10}", team):
-    raise SystemExit(f"bad team: {team}")
 text = open(path).read()
 text = re.sub(r"\n\t+DEVELOPMENT_TEAM = [^;]+;", "", text)
+text = re.sub(r"\n\t+CODE_SIGN_IDENTITY = [^;]+;", "", text)
 text = text.replace(
     "CODE_SIGN_STYLE = Automatic;",
-    "CODE_SIGN_STYLE = Automatic;\n\t\t\t\tDEVELOPMENT_TEAM = %s;" % team,
+    "CODE_SIGN_STYLE = Automatic;\n\t\t\t\tDEVELOPMENT_TEAM = %s;\n\t\t\t\tCODE_SIGN_IDENTITY = \"Apple Development\";" % team,
 )
 text = re.sub(r"\n\t+DevelopmentTeam = [^;]+;", "", text)
 text = text.replace(
@@ -163,18 +189,16 @@ text = text.replace(
     "ProvisioningStyle = Automatic;\n\t\t\t\t\t\tDevelopmentTeam = %s;" % team,
 )
 open(path, "w").write(text)
-print("stamped", team)
 PY
 
-# Do not open Xcode during the build — it locks the project and breaks signing.
 cd "$DEST/macos"
 LOG="$DEST/build.log"
 set +e
 xcodebuild -project Agare.xcodeproj -scheme Agare -configuration Debug \
   -destination "generic/platform=macOS" \
   -derivedDataPath "$DEST/DerivedData" \
-  DEVELOPMENT_TEAM="$TEAM" \
   CODE_SIGN_STYLE=Automatic \
+  CODE_SIGN_IDENTITY="Apple Development" \
   CODE_SIGNING_ALLOWED=YES \
   CODE_SIGNING_REQUIRED=YES \
   ENABLE_HARDENED_RUNTIME=YES \
@@ -184,14 +208,17 @@ STATUS=$?
 set -e
 
 if [[ $STATUS -ne 0 ]]; then
-  open "$PROJ"
-  TAIL="$(tail -n 12 "$LOG" | tr -d '\r' | python3 -c 'import sys; print(sys.stdin.read()[:900])')"
-  say "Automatic signing did not finish. The project is open in Xcode.
+  echo "$TEAM" >>"$FAILFILE"
+  TAIL="$(tail -n 14 "$LOG" | tr -d '\r' | python3 -c 'import sys; print(sys.stdin.read()[:1000])')"
+  if grep -q "No Account for Team" "$LOG"; then
+    say "Xcode rejected ${TEAM} (that is the Unknown Name / Keychain cert). It is now ignored.
 
-Confirm both Agare and AgareExtension show Team ${LABEL} under Signing & Capabilities, then press Run (▶).
-
-Last build lines:
+Run Set up with Xcode again. Allow control of Xcode if asked, so it can click your name (Personal Team) in the Team menu."
+  else
+    say "Build failed. UI picker: ${PICK_OUT:-?}
+Last lines:
 ${TAIL}"
+  fi
   exit 0
 fi
 
@@ -230,4 +257,4 @@ defaults write "$SAFARI_PREF" AllowUnsignedExtensions -bool true
 open "$INSTALLED"
 sleep 1
 open -a Safari
-say "Signed with ${LABEL} and installed at ${INSTALLED}. Safari → Settings → Extensions → turn on Agare."
+say "Signed with Personal Team ${TEAM} and installed at ${INSTALLED}. Safari → Settings → Extensions → turn on Agare."

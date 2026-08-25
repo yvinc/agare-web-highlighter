@@ -1,17 +1,12 @@
-Agare — only if Set up with Xcode could not finish by itself
+Agare — automatic Personal Team
 
-The helper signs both Agare and AgareExtension with the Apple ID already in
-Xcode → Settings → Accounts. You do not pay for a Developer Program.
+Set up with Xcode opens the project and clicks:
+  Team → [Your name] (Personal Team)
+on both Agare and AgareExtension.
 
-If the helper said there is no Apple ID:
-  1. Xcode → Settings (⌘,) → Accounts → + → Apple ID
-  2. Sign in with your iCloud Apple ID
-  3. Click Set up with Xcode again in the Agare window
+Allow Terminal (or iTerm) in:
+  System Settings → Privacy & Security → Accessibility
+the first time macOS asks.
 
-If the helper built but Safari has no Agare:
-  Safari → Settings → Extensions → turn on Agare
-
-If the helper opened this project because the build failed:
-  TARGETS → Agare → Signing & Capabilities → Team (your name)
-  TARGETS → AgareExtension → the same Team
-  Scheme: Agare > My Mac  →  press ▶ Run
+Do not leave Team on red “Unknown Name (certificate ID)”.
+That ID is a leftover Keychain cert, not your Personal Team.
