@@ -10,6 +10,8 @@
   --ink: #1c1814;
   --accent: #3f4e38;
   --radius: 8px;
+  --note-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --panel-serif: Georgia, "Times New Roman", ui-serif, serif;
 }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
@@ -62,11 +64,13 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
 .tb-note {
   width: 100%; min-height: 88px; border: 1px solid var(--line);
   border-radius: 8px; padding: 8px;
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  font-size: 19px; line-height: 1.45;
+  font-family: var(--note-sans);
+  font-size: 17px; line-height: 1.45;
   background: var(--bg); color: var(--ink);
 }
 .tb-actions { display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+.tb-actions .btn,
+.tb-actions .danger-text { font-family: var(--note-sans); }
 .tb-actions .danger-text { margin-right: auto; color: #8f2d14; }
 .enable { padding: 4px 6px 2px; }
 .enable p { margin: 0 0 8px; font-size: 14px; color: var(--muted); line-height: 1.4; word-break: break-all; }
@@ -85,7 +89,7 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
   z-index: 3;
 }
 .bubble-bar { width: 28px; height: 2px; border-radius: 99px; margin-bottom: 8px; }
-.bubble p { margin: 0; font-size: 12px; line-height: 1.45; }
+.bubble p { margin: 0; font-family: var(--note-sans); font-size: 14px; line-height: 1.45; }
 
 .panel {
   pointer-events: auto;
@@ -119,7 +123,8 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
 .paused p { margin: 0 0 8px; font-size: 15px; line-height: 1.45; color: var(--muted); }
 .tabs { display: flex; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
 .tab {
-  border-radius: 6px; padding: 6px 10px; font-size: 15px; font-weight: 500; color: var(--muted);
+  border-radius: 6px; padding: 6px 10px;
+  font-family: var(--panel-serif); font-size: 15px; font-weight: 500; color: var(--muted);
 }
 .tab.on { background: var(--ink); color: var(--paper); }
 .list { flex: 1; overflow: auto; padding: 12px; }
@@ -147,7 +152,10 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
 .panel .btn { font-size: 15px; }
 .btn.ghost { background: transparent; color: var(--ink); }
 .btn.ghost.line { border: 1px solid var(--line); }
-.settings { padding: 16px; overflow: auto; flex: 1; }
+.settings { padding: 16px; overflow: auto; flex: 1; font-family: var(--panel-serif); }
+.settings .btn { font-family: var(--panel-serif); }
+.settings .hint.mono,
+.settings .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 label { display: block; font-size: 14px; font-weight: 500; color: var(--muted); }
 .hint { font-size: 14px; color: var(--muted); margin: 6px 0 12px; }
 .hint.tight { margin: 2px 0 0; }
