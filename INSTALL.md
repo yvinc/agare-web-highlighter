@@ -6,25 +6,20 @@ The Pages site is **[yvinc.github.io/agare-web-highlighter](https://yvinc.github
 
 ## For friends
 
-1. Download **Agare.app.zip**. Unzip. Drag **Agare** into **Applications**.
-2. Open Agare. If Mac says it can’t be opened: **System Settings → Privacy & Security**, scroll to the bottom, click **Open Anyway**, then open Agare again.
-3. First time: in Xcode, Settings → Accounts → add your free Apple ID. Then **Set up with Xcode…**. The helper stamps that Team on both targets, builds, and registers Agare in Safari.
-4. Safari → Settings → Extensions → turn on **Agare**.
+1. **Privacy & Security** — Unzip **Agare.app.zip**. Drag **Agare** into **Applications**. Double-click it. If Mac says it can’t be opened: **System Settings → Privacy & Security**, scroll to the bottom, click **Open Anyway**, then open Agare again.
+2. **Set up with Xcode** — Safari only keeps an extension on if it is signed. Set up with Xcode signs Agare with a free Apple ID so the app can be shared and used at no cost. First time: Xcode → Settings → Accounts → add your free Apple ID, then **Set up with Xcode…**. Safari will quit once.
+3. **Turn it on in Safari** — Safari → Settings → Extensions → turn on **Agare**. If it is missing, run Set up with Xcode again and wait for Safari to reopen.
 
-If Agare is not listed, quit Safari (Safari menu → Quit Safari), open Agare again, then check Extensions.
-
-Keep only one Agare.app. Delete extras in `/Applications` and `~/Applications`. After a rebuild: tick **Allow unsigned extensions**, then run `pluginkit` is handled by the helper.
+Keep only one Agare.app. Delete extras in `/Applications` and `~/Applications`.
 
 ## If Agare vanished from Safari after a reinstall
 
 1. Safari menu → **Quit Safari**.
 2. Delete **every** Agare.app (`/Applications`, `~/Applications`, and Xcode’s Products folder).
 3. Open the Agare you just built (the helper puts it in `~/Applications`).
-4. Safari → Settings → Advanced → **Show features for web developers**.
-5. Developer → **Allow unsigned extensions**.
-6. Extensions → Agare.
+4. Run **Set up with Xcode…** again, then Safari → Settings → Extensions → Agare.
 
-Safari hides unsigned extensions until step 5, and it forgets that tick when Safari quits. An old Agare.app still running will steal the new build (same bundle id) — quit all Agare windows first.
+An old Agare.app still running will steal the new build (same bundle id) — quit all Agare windows first.
 
 ## For you, once
 

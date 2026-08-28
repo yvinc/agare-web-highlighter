@@ -89,9 +89,22 @@ JS
 if [[ "$AX_OK" != "1" ]]; then
   open "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility" 2>/dev/null || \
     open "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility" 2>/dev/null || true
-  say_titled "Accessibility is off" "Xcode setup automation needs Accessibility permission for Terminal. It is currently off.
-
-Open System Settings → Privacy & Security → Accessibility, turn on Terminal, then click Set up with Xcode again."
+  osascript -l JavaScript <<'JS'
+ObjC.import("AppKit")
+const alert = $.NSAlert.alloc.init
+alert.messageText = "Agare needs Terminal’s permission in Accessibility"
+alert.informativeText = "Xcode setup automation needs Accessibility permission for Terminal. It is currently off.\n\nOpen System Settings → Privacy & Security → Accessibility, and turn on Terminal."
+const line = $.NSTextField.alloc.initWithFrame($.NSMakeRect(0, 0, 360, 22))
+line.stringValue = "Then restart Set up with Xcode."
+line.font = $.NSFont.boldSystemFontOfSize(13)
+line.drawsBackground = false
+line.bezeled = false
+line.editable = false
+line.selectable = false
+alert.accessoryView = line
+alert.addButtonWithTitle("OK")
+alert.runModal()
+JS
   exit 0
 fi
 

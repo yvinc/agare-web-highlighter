@@ -1,19 +1,30 @@
 # Agare
 
-A personal Safari Web Extension for sentence highlighting and notes.
+Safari highlighter – 召し上がれ
+
 ## Install (Mac)
 
-1. Download **[Agare.app.zip](https://github.com/yvinc/agare-web-highlighter/releases/latest/download/Agare.app.zip)** from [Releases](https://github.com/yvinc/agare-web-highlighter/releases/latest). Unzip, then drag **Agare** into **Applications**.
-2. Open Agare. If Mac blocks it: **System Settings → Privacy & Security**, scroll to the bottom, click **Open Anyway**, then open Agare again.
-3. First time: in the Agare window, click **Set up with Xcode…** and confirm the prompts. The build happens in Xcode — choose your Team, then press Run.
-4. In **Safari**, open Settings (⌘,).
-   - **Advanced** — tick **Show features for web developers** (this adds the Developer tab).
-   - **Developer** — tick **Allow unsigned extensions**.
-   - **Extensions** — turn on **Agare**.
+Same steps as [the Pages site](https://yvinc.github.io/agare-web-highlighter/). Download **[Agare.app.zip](https://github.com/yvinc/agare-web-highlighter/releases/latest/download/Agare.app.zip)** from [Releases](https://github.com/yvinc/agare-web-highlighter/releases/latest).
 
-If Agare is missing from the list, quit Safari fully and open Agare again.
+1. **Privacy & Security**  
+   Unzip the latest release and drag Agare into Applications. Double-click it. If Mac says it can’t be opened: **System Settings → Privacy & Security**, scroll to the bottom, click **Open Anyway**, confirm, then open Agare again.
 
-# Features
+2. **Set up with Xcode**  
+   Safari only keeps an extension on if it is signed. Set up with Xcode signs Agare with a free Apple ID on this Mac, so the app can be shared and used at no cost, and Safari keeps Agare on. First time on this Mac: in Xcode, Settings → Accounts → add your free Apple ID. Then in the Agare window click **Set up with Xcode…**. The helper stamps that Team on Agare and AgareExtension, builds, and registers the extension (Safari will quit once).
+
+3. **Turn it on in Safari**  
+   Safari → Settings → Extensions → turn on **Agare**. If it is missing, run Set up with Xcode again and wait for Safari to reopen.
+
+### Permissions for Set up with Xcode
+
+1. **Open Anyway** — System Settings → Privacy & Security, so the downloaded Agare.app can launch.
+2. **Xcode** — installed from the App Store, opened once (licence). A free Apple ID in Xcode → Settings → Accounts.
+3. **Terminal in Accessibility** — System Settings → Privacy & Security → Accessibility, turn on Terminal so the helper can choose Personal Team in Xcode. **Then restart Set up with Xcode.**
+4. **Automation** — if asked, allow Terminal to control Xcode and System Events.
+5. **Safari** — will quit once while the extension registers. After that: Safari → Settings → Extensions → turn on Agare.
+
+Source: [yvinc/agare-web-highlighter](https://github.com/yvinc/agare-web-highlighter)
+
 This extension includes the following key features:
 
 1.  Colours: Six inks (`#fff59e` lemon, `#fa9442` tangerine, `#a3ad00` olive, `#de4500` ember, `#96bfe6` sky, `#bf36e0` violet) with a transparency slider in `Settings`.
@@ -48,7 +59,4 @@ Export writes `Agare-highlights.json` (highlights, opacity, site mode, and on/of
 
 ## Licence
 
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-Attribution-NonCommercial-ShareAlike 4.0 International
-
-Written for personal use.
+CC BY-NC 4.0. Written for personal use.
