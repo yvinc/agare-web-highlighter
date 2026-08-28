@@ -65,7 +65,7 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
   width: 100%; min-height: 88px; border: 1px solid var(--line);
   border-radius: 8px; padding: 8px;
   font-family: var(--note-sans);
-  font-size: 17px; line-height: 1.45;
+  font-size: 16px; line-height: calc(1.45em - 0.5px);
   background: var(--bg); color: var(--ink);
 }
 .tb-actions { display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
@@ -155,7 +155,13 @@ button:focus-visible { outline: 2px solid #3f4e38; outline-offset: 2px; }
 .settings { padding: 16px; overflow: auto; flex: 1; font-family: var(--panel-serif); }
 .settings .btn { font-family: var(--panel-serif); }
 .settings .hint.mono,
-.settings .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.settings .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 500; }
+.settings label { font-weight: 700; color: var(--ink); }
+.settings .hint { font-weight: 700; color: var(--ink); }
+.settings .hint.tight { font-weight: 500; color: var(--muted); }
+.settings .hint.dim { font-weight: 500; font-size: 13px; color: var(--muted); }
+.settings .choice span { font-weight: 500; }
+.settings .rules { font-weight: 500; }
 label { display: block; font-size: 14px; font-weight: 500; color: var(--muted); }
 .hint { font-size: 14px; color: var(--muted); margin: 6px 0 12px; }
 .hint.tight { margin: 2px 0 0; }
