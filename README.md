@@ -1,6 +1,6 @@
 # Agare
 
-Safari highlighter – 召し上がれ
+A Safari extension for you to freely highlight and note whatever you want. Highlights never leave your local machine unless you export them.
 
 ## Install (Mac)
 
@@ -23,7 +23,6 @@ Same steps as [the Pages site](https://yvinc.github.io/agare-web-highlighter/). 
 4. **Automation** — if asked, allow Terminal to control Xcode and System Events.
 5. **Safari** — will quit once while the extension registers. After that: Safari → Settings → Extensions → turn on Agare.
 
-Source: [yvinc/agare-web-highlighter](https://github.com/yvinc/agare-web-highlighter)
 
 This extension includes the following key features:
 
