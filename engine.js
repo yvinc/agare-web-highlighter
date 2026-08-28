@@ -104,15 +104,101 @@
   };
 
   const quoteFromRange = (range, root) => {
-    const e = range.toString().replace(/\s+/g, " ").trim().slice(0, MAX_E);
+    const raw = range.toString();
+    const e = raw.replace(/\s+/g, " ").trim().slice(0, MAX_E);
     const { text } = collect(root);
     const start = Math.max(0, rangeOff(root, range));
-    const end = start + range.toString().length;
+    const end = start + raw.length;
     return {
       e,
       p: text.slice(Math.max(0, start - PRE), start),
       s: text.slice(end, end + SUF),
+      o: start,
     };
+  };
+
+  const hitsFor = (text, needle) => {
+    const hits = [];
+    if (!needle) return hits;
+    let i = 0;
+    while (i < text.length) {
+      const f = text.indexOf(needle, i);
+      if (f < 0) break;
+      hits.push(f);
+      i = f + 1;
+    }
+    return hits;
+  };
+
+  const rangeFromQuote = (root, q, used) => {
+    const index = collect(root);
+    const { text } = index;
+    if (!q.e) return null;
+    const taken = used || new Set();
+    const len = q.e.length;
+    const free = (at) => at >= 0 && !taken.has(at);
+    const take = (at, end) => {
+      const r = offsetsToRange(index, at, end);
+      if (r) taken.add(at);
+      return r;
+    };
+    const excerptAt = (at) => text.slice(at, at + len);
+
+    if (typeof q.o === "number" && free(q.o)) {
+      const got = excerptAt(q.o);
+      if (got === q.e || got.replace(/\s+/g, " ").trim() === q.e) {
+        const r = take(q.o, q.o + (got === q.e ? len : Math.max(len, got.length)));
+        if (r) return r;
+      }
+    }
+
+    if (q.p || q.s) {
+      const needle = q.p + q.e + q.s;
+      let from = 0;
+      while (from <= text.length) {
+        const f = text.indexOf(needle, from);
+        if (f < 0) break;
+        const at = f + q.p.length;
+        if (free(at)) {
+          const r = take(at, at + len);
+          if (r) return r;
+        }
+        from = f + 1;
+      }
+    }
+
+    const hits = hitsFor(text, q.e);
+    let best = -1;
+    let bestScore = -1;
+    for (const at of hits) {
+      if (!free(at)) continue;
+      const pre = text.slice(Math.max(0, at - (q.p ? q.p.length : PRE)), at);
+      const suf = text.slice(at + len, at + len + (q.s ? q.s.length : SUF));
+      let sc = 0;
+      if (q.p && pre.endsWith(q.p)) sc += 4;
+      if (q.s && suf.startsWith(q.s)) sc += 4;
+      if (typeof q.o === "number") sc += 2 / (1 + Math.abs(q.o - at));
+      if (sc > bestScore) {
+        bestScore = sc;
+        best = at;
+      }
+    }
+    if (best < 0) {
+      best = hits.find((h) => free(h));
+      if (best == null) best = -1;
+    }
+    if (best < 0) return null;
+    return take(best, best + len);
+  };
+
+  const restore = (root, marks) => {
+    unwrapAll(root);
+    const used = new Set();
+    const ordered = marks.slice().sort((a, b) => a.e.length - b.e.length || a.t - b.t);
+    for (const m of ordered) {
+      const r = rangeFromQuote(root, m, used);
+      if (r) wrapRange(r, m);
+    }
   };
 
   const offsetsToRange = (index, from, to) => {
@@ -127,20 +213,6 @@
     const r = document.createRange();
     try { r.setStart(sn, so); r.setEnd(en, eo); } catch { return null; }
     return r;
-  };
-
-  const rangeFromQuote = (root, q) => {
-    const index = collect(root);
-    const { text } = index;
-    if (!q.e) return null;
-    let at = -1;
-    if (q.p || q.s) {
-      const f = text.indexOf(q.p + q.e + q.s);
-      if (f >= 0) at = f + q.p.length;
-    }
-    if (at < 0) at = text.indexOf(q.e);
-    if (at < 0) return null;
-    return offsetsToRange(index, at, at + q.e.length);
   };
 
   const makeMark = (m) => {
@@ -204,15 +276,6 @@
     return marks;
   };
 
-  const restore = (root, marks) => {
-    unwrapAll(root);
-    const ordered = marks.slice().sort((a, b) => a.e.length - b.e.length || a.t - b.t);
-    for (const m of ordered) {
-      const r = rangeFromQuote(root, m);
-      if (r) wrapRange(r, m);
-    }
-  };
-
   const markIdFromRange = (range) => {
     const n = range.commonAncestorContainer;
     const el = n.nodeType === 1 ? n : n.parentElement;
@@ -242,6 +305,7 @@
       s: typeof m.s === "string" ? m.s.slice(0, SUF) : "",
       t: typeof m.t === "number" ? m.t : (Date.now() / 1000) | 0,
     };
+    if (typeof m.o === "number" && Number.isFinite(m.o) && m.o >= 0) out.o = m.o | 0;
     if (typeof m.n === "string" && m.n.trim()) out.n = m.n.trim().slice(0, MAX_N);
     return out;
   };

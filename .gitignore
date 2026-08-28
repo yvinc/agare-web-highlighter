@@ -1,7 +1,7 @@
-README.html
-README_files/
 .DS_Store
-
 macos/DerivedData
 macos/Generated
 macos/build
+
+README_files/
+README.html

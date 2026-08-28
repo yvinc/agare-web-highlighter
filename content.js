@@ -350,7 +350,9 @@
     if (!range) return;
     const q = L.quoteFromRange(range, root);
     if (!q.e) return;
-    const existing = marks.find((m) => m.e === q.e && m.p === q.p);
+    const existing = marks.find(
+      (m) => m.e === q.e && (typeof q.o === "number" && typeof m.o === "number" ? m.o === q.o : m.p === q.p && m.s === q.s),
+    );
     const hostId = L.markIdFromRange(range);
     const rect = range.getBoundingClientRect();
     document.getSelection()?.removeAllRanges();
@@ -364,7 +366,7 @@
       render();
       return;
     }
-    const m = { i: L.nid(), c: color, e: q.e, p: q.p, s: q.s, t: (Date.now() / 1000) | 0 };
+    const m = { i: L.nid(), c: color, e: q.e, p: q.p, s: q.s, o: q.o, t: (Date.now() / 1000) | 0 };
     const wrapped = L.wrapRange(range, m);
     if (!wrapped.length) {
       const host = hostId ? marks.find((x) => x.i === hostId) : null;
@@ -698,8 +700,7 @@
       settingsEl.hidden = false;
       const extras = listOtherRules();
       settingsEl.innerHTML = `
-        <label>Where Agare runs</label>
-        <p class="hint">Keep it off on sites you only skim. A longer highlight never paints over a shorter one already inside it.</p>
+        <label>Site-specific permission</label>
         <div class="gate">
           <div class="gate-row">
             <div>
@@ -716,7 +717,7 @@
             <button class="switch${hostOn() ? " on" : ""}" data-act="host-toggle" type="button" role="switch" aria-checked="${hostOn()}"></button>
           </div>
         </div>
-        <p class="hint">New sites</p>
+        <p class="hint">Global permission</p>
         <button class="choice${mode === "all" ? " on" : ""}" data-act="mode-all" type="button">
           <strong>Every site</strong>
           <span>Pause any page or domain you do not want.</span>
@@ -727,7 +728,7 @@
         </button>
         ${
           extras.length
-            ? `<p class="hint">Other pages and sites</p><ul class="rules">${extras
+            ? `<p class="hint">Agare has permission to these sites:</p><ul class="rules">${extras
                 .map(
                   (r) =>
                     `<li><span class="mono">${esc(r.kind === "h" ? r.k : r.k.replace(/^https?:\/\//, ""))}</span> <em>${r.on ? "on" : "off"}</em> <button type="button" data-drop="${r.kind}:${esc(r.k)}">Clear</button></li>`,
@@ -736,7 +737,7 @@
             : ""
         }
         <label>Highlight transparency</label>
-        <p class="hint">Lower is more see-through. Applies on this machine.</p>
+        <p class="hint dim">Lower is more see-through. Applies on this machine.</p>
         <input type="range" min="18" max="88" value="${opacity}" />
         <p class="sample" style="background:color-mix(in srgb,#fff59e ${opacity}%, transparent)">Sample sentence with the current wash.</p>
         <div class="stack">
